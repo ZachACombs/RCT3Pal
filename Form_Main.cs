@@ -55,6 +55,8 @@ namespace RCT3Pal
             new Dictionary<string, (Control, List<OptionValue>)>();
         private Dictionary<string, List<OptionValue>> Options =
             new Dictionary<string, List<OptionValue>>();
+        private Dictionary<string, string> UnknownOptions = 
+            new Dictionary<string, string>();
         public void AddKnownOption_Bool(string optionName, bool isTrue)
         {
             OptionControl_Bool control = new OptionControl_Bool(this, optionName, isTrue);
@@ -242,11 +244,11 @@ namespace RCT3Pal
                 else
                 {
                     name = line.Substring(0, optionNameLength);
-                    value = line.Substring(optionNameLength + 1);
+                    value = line.Substring(optionNameLength + 1).TrimStart((char)0x20);
                 }
-                List<(string, bool)> args_AsStrings = extractArguments(value);
                 if (KnownOptions.ContainsKey(name))
                 {
+                    List<(string, bool)> args_AsStrings = extractArguments(value);
                     Control control = KnownOptions[name].Item1;
                     Type controlType = control.GetType();
                     //Retrieve and fix option values
@@ -264,14 +266,7 @@ namespace RCT3Pal
                 }
                 else
                 {
-                    List<OptionValue> args = new List<OptionValue>();
-                    foreach ((string, bool) arg_AsString in args_AsStrings)
-                    {
-                        args.Add(new OptionValue(arg_AsString.Item2 ?
-                            OptionValueType.StringValue : OptionValueType.UnknownValue,
-                            arg_AsString.Item1));
-                    }
-                    SetOption(name, args.ToArray());
+                    UnknownOptions.Add(name, value);
                 }
             }
         }
@@ -293,6 +288,10 @@ namespace RCT3Pal
             foreach (KeyValuePair<string, List<OptionValue>> kvp in Options)
             {
                 lines_List.Add(OptionAndValues(kvp.Key, kvp.Value));
+            }
+            foreach (KeyValuePair<string, string> kvp in UnknownOptions)
+            {
+                lines_List.Add(kvp.Key + " " + kvp.Value);
             }
             lines = lines_List.ToArray();
         }
@@ -525,7 +524,7 @@ namespace RCT3Pal
             MenuItem_Config.Enabled = (!rct3IsRunning);
 
             //Options
-            Button_EditRawData.Enabled = (!rct3IsRunning);
+            Button_OtherOptions.Enabled = (!rct3IsRunning);
             Button_UpdateOptions.Enabled = (!rct3IsRunning);
             foreach (KeyValuePair<string, (Control, List<OptionValue>)> kvp in KnownOptions)
                 kvp.Value.Item1.Enabled = (!rct3IsRunning);
@@ -819,15 +818,9 @@ namespace RCT3Pal
             (new Form_About()).ShowDialog();
         }
 
-        private void Button_EditRawData_Click(object sender, EventArgs e)
+        private void Button_OtherOptions_Click(object sender, EventArgs e)
         {
-            Options_Save(out string[] lines);
-            List<char> chars = new List<char>();
-            foreach (string line in lines)
-            {
-                chars.AddRange(line.ToCharArray());
-                chars.AddRange("\r\n".ToCharArray());
-            }
+            Form_OtherOptions.EditOtherOptions(UnknownOptions);
         }
     }
 }

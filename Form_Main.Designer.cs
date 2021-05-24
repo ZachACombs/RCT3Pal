@@ -39,7 +39,7 @@ namespace RCT3Pal
             this.MenuItem_Config = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuItem_About = new System.Windows.Forms.ToolStripMenuItem();
             this.process1 = new System.Diagnostics.Process();
-            this.Button_EditRawData = new System.Windows.Forms.Button();
+            this.Button_OtherOptions = new System.Windows.Forms.Button();
             this.Button_UpdateOptions = new System.Windows.Forms.Button();
             this.Button_ExportOptions = new System.Windows.Forms.Button();
             this.GroupBox_Options = new System.Windows.Forms.GroupBox();
@@ -115,16 +115,16 @@ namespace RCT3Pal
             this.process1.StartInfo.UserName = "";
             this.process1.SynchronizingObject = this;
             // 
-            // Button_EditRawData
+            // Button_OtherOptions
             // 
-            this.Button_EditRawData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.Button_EditRawData.Location = new System.Drawing.Point(297, 19);
-            this.Button_EditRawData.Name = "Button_EditRawData";
-            this.Button_EditRawData.Size = new System.Drawing.Size(100, 23);
-            this.Button_EditRawData.TabIndex = 4;
-            this.Button_EditRawData.Text = "Edit Raw Data";
-            this.Button_EditRawData.UseVisualStyleBackColor = true;
-            this.Button_EditRawData.Click += new System.EventHandler(this.Button_EditRawData_Click);
+            this.Button_OtherOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Button_OtherOptions.Location = new System.Drawing.Point(297, 19);
+            this.Button_OtherOptions.Name = "Button_OtherOptions";
+            this.Button_OtherOptions.Size = new System.Drawing.Size(100, 23);
+            this.Button_OtherOptions.TabIndex = 4;
+            this.Button_OtherOptions.Text = "Other Options";
+            this.Button_OtherOptions.UseVisualStyleBackColor = true;
+            this.Button_OtherOptions.Click += new System.EventHandler(this.Button_OtherOptions_Click);
             // 
             // Button_UpdateOptions
             // 
@@ -133,7 +133,7 @@ namespace RCT3Pal
             this.Button_UpdateOptions.Name = "Button_UpdateOptions";
             this.Button_UpdateOptions.Size = new System.Drawing.Size(100, 23);
             this.Button_UpdateOptions.TabIndex = 5;
-            this.Button_UpdateOptions.Text = "Update Options";
+            this.Button_UpdateOptions.Text = "Save Options";
             this.Button_UpdateOptions.UseVisualStyleBackColor = true;
             this.Button_UpdateOptions.Click += new System.EventHandler(this.Button_UpdateOptions_Click);
             // 
@@ -151,7 +151,7 @@ namespace RCT3Pal
             // GroupBox_Options
             // 
             this.GroupBox_Options.Controls.Add(this.Panel_Options);
-            this.GroupBox_Options.Controls.Add(this.Button_EditRawData);
+            this.GroupBox_Options.Controls.Add(this.Button_OtherOptions);
             this.GroupBox_Options.Controls.Add(this.Button_ExportOptions);
             this.GroupBox_Options.Controls.Add(this.Button_UpdateOptions);
             this.GroupBox_Options.Location = new System.Drawing.Point(12, 27);
@@ -240,7 +240,7 @@ namespace RCT3Pal
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem MenuItem_Config;
         private System.Diagnostics.Process process1;
-        private System.Windows.Forms.Button Button_EditRawData;
+        private System.Windows.Forms.Button Button_OtherOptions;
         private System.Windows.Forms.Button Button_UpdateOptions;
         private System.Windows.Forms.Button Button_ExportOptions;
         private System.Windows.Forms.GroupBox GroupBox_Options;
