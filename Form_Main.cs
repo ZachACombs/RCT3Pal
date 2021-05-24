@@ -12,38 +12,32 @@ using System.Diagnostics;
 
 namespace RCT3Pal
 {
-    public enum OptionValueType
+    public struct OptionValue_Bool
     {
-        UnknownValue = -1,
-        BoolValue = 0,
-        IntValue = 1,
-        FloatValue = 2,
-        StringValue = 3,
-    }
-    public struct OptionValue
-    {
-        public OptionValueType ValueType;
-        public object Value;
-
-        public OptionValue(object value)
+        public OptionControl_Bool OptionControl
         {
-            Type tt = value.GetType();
-            if (tt == typeof(bool))
-                ValueType = OptionValueType.BoolValue;
-            else if (tt == typeof(int))
-                ValueType = OptionValueType.IntValue;
-            else if (tt == typeof(float))
-                ValueType = OptionValueType.FloatValue;
-            else if (tt == typeof(string))
-                ValueType = OptionValueType.StringValue;
-            else
-                ValueType = OptionValueType.UnknownValue;
-            Value = value;
+            get
+            {
+                return Var_OptionControl;
+            }
         }
-        public OptionValue(OptionValueType valueType, object value)
+        private OptionControl_Bool Var_OptionControl;
+
+        public bool IsTrue
         {
-            ValueType = valueType;
-            Value = value;
+            get
+            {
+                return OptionControl.IsTrue;
+            }
+            set
+            {
+                OptionControl.IsTrue = value;
+            }
+        }
+
+        public OptionValue_Bool(string optionName, bool isTrue)
+        {
+            Var_OptionControl = new OptionControl_Bool(optionName, isTrue);
         }
     }
 
@@ -51,54 +45,15 @@ namespace RCT3Pal
     {
         //Options
         #region
-        private Dictionary<string, (Control, List<OptionValue>)> KnownOptions =
-            new Dictionary<string, (Control, List<OptionValue>)>();
-        private Dictionary<string, List<OptionValue>> Options =
-            new Dictionary<string, List<OptionValue>>();
+        private Dictionary<string, object> KnownOptions =
+            new Dictionary<string, object>();
         private Dictionary<string, string> UnknownOptions = 
             new Dictionary<string, string>();
         public void AddKnownOption_Bool(string optionName, bool isTrue)
         {
-            OptionControl_Bool control = new OptionControl_Bool(this, optionName, isTrue);
-            KnownOptions.Add(optionName, (
-                control, ListOfValues(
-                new OptionValue(OptionValueType.BoolValue, isTrue)
-                )));
-            SetOption(optionName, new OptionValue(isTrue));
-            Panel_Options.Controls.Add(control);
-        }
-        public void SetOption(string optionName, params OptionValue[] values)
-        {
-            if (!Options.ContainsKey(optionName))
-                Options.Add(optionName, values.ToList());
-            else
-                Options[optionName] = values.ToList();
-        }
-        private List<OptionValue> ListOfValues(params OptionValue[] values)
-        {
-            return values.ToList();
-        }
-        private string OptionAndValues(string option, List<OptionValue> values)
-        {
-            string str = option;
-            foreach (OptionValue value in values)
-            {
-                if (value.ValueType == OptionValueType.UnknownValue)
-                    str = str + " " + (string)value.Value;
-                if (value.ValueType == OptionValueType.BoolValue)
-                    str = str + ((bool)value.Value ? " 1" : " 0");
-                if (value.ValueType == OptionValueType.IntValue)
-                    str = str + " " + ((int)value.Value).ToString();
-                if (value.ValueType == OptionValueType.FloatValue)
-                    str = str + " " + ((float)value.Value).ToString();
-                if (value.ValueType == OptionValueType.StringValue)
-                    str = str + " " + StringToString((string)value.Value);
-            }
-            return str;
-        }
-        private string StringToString(string str)
-        {
-            return "\"" + str + "\"";
+            OptionValue_Bool optionValue = new OptionValue_Bool(optionName, isTrue);
+            KnownOptions.Add(optionName, optionValue);
+            Panel_Options.Controls.Add(optionValue.OptionControl);
         }
         private string ReadStringFromString(string str, int startPos, out int endPos) //endPos is end of string chunk (prev char is closing ")
         {
@@ -164,109 +119,50 @@ namespace RCT3Pal
 
                 return args;
             }
-            List<OptionValue> retrieveArguments(List<(string, bool)> args_AsStrings, List<OptionValue> valueTypes)
-            {
-                //Only the value types are examined in valueTypes; not the values
-                List<OptionValue> args = new List<OptionValue>();
-                for (int n = 0; n < valueTypes.Count; n += 1)
-                {
-                    if (n >= args_AsStrings.Count)
-                    {
-                        if (valueTypes[n].ValueType == OptionValueType.StringValue)
-                            args.Add(new OptionValue(OptionValueType.StringValue, ""));
-                        else
-                            args.Add(new OptionValue(valueTypes[n].ValueType, 1));
-                    }
-                    else
-                    {
-                        if (valueTypes[n].ValueType == OptionValueType.BoolValue)
-                        {
-                            bool isValid = int.TryParse(args_AsStrings[n].Item1, out int val);
-                            if (isValid & (val != 0 & val != 1))
-                                isValid = false;
-                            if ((!args_AsStrings[n].Item2) & isValid)
-                            {
-                                args.Add(new OptionValue(OptionValueType.BoolValue, val == 1));
-                            }
-                            else
-                                args.Add(new OptionValue(OptionValueType.BoolValue, true));
-                        }
-                        else if (valueTypes[n].ValueType == OptionValueType.IntValue)
-                        {
-                            bool isValid = int.TryParse(args_AsStrings[n].Item1, out int val);
-                            if ((!args_AsStrings[n].Item2) & isValid)
-                            {
-                                args.Add(new OptionValue(OptionValueType.IntValue, val));
-                            }
-                            else
-                                args.Add(new OptionValue(OptionValueType.IntValue, 1));
-                        }
-                        else if (valueTypes[n].ValueType == OptionValueType.FloatValue)
-                        {
-                            bool isValid = float.TryParse(args_AsStrings[n].Item1, out float val);
-                            if ((!args_AsStrings[n].Item2) & isValid)
-                            {
-                                args.Add(new OptionValue(OptionValueType.FloatValue, val));
-                            }
-                            else
-                                args.Add(new OptionValue(OptionValueType.FloatValue, 1f));
-                        }
-                        else if (valueTypes[n].ValueType == OptionValueType.StringValue)
-                        {
-                            if (args_AsStrings[n].Item2)
-                                args.Add(new OptionValue(OptionValueType.StringValue, args_AsStrings[n].Item1));
-                            else
-                                args.Add(new OptionValue(OptionValueType.StringValue, ""));
-                        }
-                        else
-                        {
-                            if (!args_AsStrings[n].Item2)
-                                args.Add(new OptionValue(OptionValueType.UnknownValue, args_AsStrings[n].Item1));
-                            else
-                                args.Add(new OptionValue(OptionValueType.UnknownValue, 0));
-                        }
-                    }
-                }
-                return args;
-            }
-
+            
             for (int ll = 0; ll < lines.Length; ll += 1)
             {
                 string line = lines[ll];
                 int optionNameLength = line.IndexOf(" ");
-                string name;
-                string value;
+                string line_name;
+                string line_value;
                 if (optionNameLength == -1)
                 {
-                    name = line;
-                    value = "";
+                    line_name = line;
+                    line_value = "";
                 }
                 else
                 {
-                    name = line.Substring(0, optionNameLength);
-                    value = line.Substring(optionNameLength + 1).TrimStart((char)0x20);
+                    line_name = line.Substring(0, optionNameLength);
+                    line_value = line.Substring(optionNameLength + 1).TrimStart((char)0x20);
                 }
-                if (KnownOptions.ContainsKey(name))
+                if (KnownOptions.ContainsKey(line_name))
                 {
-                    List<(string, bool)> args_AsStrings = extractArguments(value);
-                    Control control = KnownOptions[name].Item1;
-                    Type controlType = control.GetType();
-                    //Retrieve and fix option values
-                    List<OptionValue> args = retrieveArguments(args_AsStrings, KnownOptions[name].Item2);
-                    //Update control
-                    if (controlType == typeof(OptionControl_Bool))
+                    List<(string, bool)> args_AsStrings = extractArguments(line_value);
+
+                    object optionValue = KnownOptions[line_name];
+
+                    if (optionValue.GetType() == typeof(OptionValue_Bool))
                     {
-                        if (args.Count >= 1)
+                        OptionValue_Bool v = (OptionValue_Bool)optionValue;
+                        
+                        if (args_AsStrings.Count == 0)
                         {
-                            ((OptionControl_Bool)control).SetValues((bool)args[0].Value);
+                            v.IsTrue = true;
+                        }
+                        else if (args_AsStrings[0].Item2)
+                        {
+                            v.IsTrue = false;
+                        }
+                        else
+                        {
+                            v.IsTrue = (args_AsStrings[0].Item1 == "1");
                         }
                     }
-                    //Set option
-                    SetOption(name, args.ToArray());
                 }
                 else
                 {
-                    UnknownOptions.Add(name, value);
+                    UnknownOptions.Add(line_name, line_value);
                 }
             }
         }
@@ -285,9 +181,17 @@ namespace RCT3Pal
         private void Fun_Options_Save(out string[] lines)
         {
             List<string> lines_List = new List<string>();
-            foreach (KeyValuePair<string, List<OptionValue>> kvp in Options)
+            foreach (KeyValuePair<string, object> kvp in KnownOptions)
             {
-                lines_List.Add(OptionAndValues(kvp.Key, kvp.Value));
+                string line = kvp.Key;
+                
+                if (kvp.Value.GetType() == typeof(OptionValue_Bool))
+                {
+                    line = line + (((OptionValue_Bool)kvp.Value).IsTrue ?
+                        " 1" : " 0");
+                }
+
+                lines_List.Add(line);
             }
             foreach (KeyValuePair<string, string> kvp in UnknownOptions)
             {
@@ -526,8 +430,11 @@ namespace RCT3Pal
             //Options
             Button_OtherOptions.Enabled = (!rct3IsRunning);
             Button_UpdateOptions.Enabled = (!rct3IsRunning);
-            foreach (KeyValuePair<string, (Control, List<OptionValue>)> kvp in KnownOptions)
-                kvp.Value.Item1.Enabled = (!rct3IsRunning);
+            foreach (KeyValuePair<string, object> kvp in KnownOptions)
+            {
+                if (kvp.Value.GetType() == typeof(OptionValue_Bool))
+                    ((OptionValue_Bool)kvp.Value).OptionControl.Enabled = (!rct3IsRunning);
+            }
 
             //Custom content
             CheckBox_UseCustomContent.Enabled = (!rct3IsRunning);

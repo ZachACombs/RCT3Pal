@@ -258,7 +258,9 @@ namespace RCT3Pal
         private void Timer_CreateCustomFolders_Tick(object sender, EventArgs e)
         {
             Text = FormText;
-            ProgressBar_Overall.Value = ProgressValue_Overall;
+            ProgressBar_Overall.Value = Math.Max(
+                ProgressValue_Overall,
+                ProgressBar_Overall.Maximum);
             ProgressBar_Current.Value = ProgressValue_Current;
             Label_Current.Text = LabelText_Current;
         }

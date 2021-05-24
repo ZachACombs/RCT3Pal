@@ -12,32 +12,32 @@ namespace RCT3Pal
 {
     public partial class OptionControl_Bool : UserControl
     {
-        private Form_Main ParentForm;
-        private string OptionName;
+        public bool IsTrue
+        {
+            get
+            {
+                return CheckBox_Bool.Checked;
+            }
+            set
+            {
+                CheckBox_Bool.Checked = value;
+            }
+        }
 
-        public OptionControl_Bool(Form_Main parentForm, string optionName, bool isChecked)
+        public OptionControl_Bool(string optionName, bool isChecked)
         {
             InitializeComponent();
 
-            ParentForm = parentForm;
-            OptionName = optionName;
             CheckBox_Bool.Text = Fun.MakeOptionDisplayName(optionName);
-            SetValues(isChecked);
+            CheckBox_Bool.Checked = isChecked;
         }
 
-        ///<summary>Sets values without updating options dictionary</summary>
-        public void SetValues(bool isTrue)
-        {
-            CheckBox_Bool.Checked = isTrue;
-        }
         private void CheckBox_Bool_Click(object sender, EventArgs e)
         {
             if (CheckBox_Bool.Checked)
                 CheckBox_Bool.Checked = false;
             else
                 CheckBox_Bool.Checked = true;
-            ParentForm.SetOption(OptionName,
-                new OptionValue(CheckBox_Bool.Checked));
         }
     }
 }
