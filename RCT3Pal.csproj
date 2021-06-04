@@ -87,6 +87,18 @@
     <Compile Include="OptionControl_Bool.Designer.cs">
       <DependentUpon>OptionControl_Bool.cs</DependentUpon>
     </Compile>
+    <Compile Include="OptionControl_Choice.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="OptionControl_Choice.Designer.cs">
+      <DependentUpon>OptionControl_Choice.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OptionControl_Int.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="OptionControl_Int.Designer.cs">
+      <DependentUpon>OptionControl_Int.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form_About.resx">
@@ -106,6 +118,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="OptionControl_Bool.resx">
       <DependentUpon>OptionControl_Bool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OptionControl_Choice.resx">
+      <DependentUpon>OptionControl_Choice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OptionControl_Int.resx">
+      <DependentUpon>OptionControl_Int.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

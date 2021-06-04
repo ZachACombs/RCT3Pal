@@ -14,24 +14,29 @@ namespace RCT3Pal
 {
     public struct OptionValue_Bool
     {
-        public OptionControl_Bool OptionControl
-        {
-            get
-            {
-                return Var_OptionControl;
-            }
-        }
         private OptionControl_Bool Var_OptionControl;
+        public bool ControlEnabled
+        {
+            get { return Var_OptionControl.Enabled; }
+            set { Var_OptionControl.Enabled = value; }
+        }
+        public void PlaceControlIntoAnotherControl(Control parentControl)
+        {
+            parentControl.Controls.Add(Var_OptionControl);
+            Var_OptionControl.Size = new Size(
+                parentControl.Size.Width - 25,
+                Var_OptionControl.Size.Height);
+        }
 
         public bool IsTrue
         {
             get
             {
-                return OptionControl.IsTrue;
+                return Var_OptionControl.IsTrue;
             }
             set
             {
-                OptionControl.IsTrue = value;
+                Var_OptionControl.IsTrue = value;
             }
         }
 
@@ -40,11 +45,104 @@ namespace RCT3Pal
             Var_OptionControl = new OptionControl_Bool(optionName, isTrue);
         }
     }
+    public struct OptionValue_Choice
+    {
+        private OptionControl_Choice Var_OptionControl;
+        public bool ControlEnabled
+        {
+            get { return Var_OptionControl.Enabled; }
+            set { Var_OptionControl.Enabled = value; }
+        }
+        public void PlaceControlIntoAnotherControl(Control parentControl)
+        {
+            parentControl.Controls.Add(Var_OptionControl);
+            Var_OptionControl.Size = new Size(
+                parentControl.Size.Width - 25,
+                Var_OptionControl.Size.Height);
+        }
+
+        public int SelectedIndex
+        {
+            get
+            {
+                return Var_OptionControl.SelectedIndex;
+            }
+            set
+            {
+                Var_OptionControl.SelectedIndex = value;
+            }
+        }
+
+        public OptionValue_Choice(string optionName, int defaultIndex, string[] choices)
+        {
+            Var_OptionControl = new OptionControl_Choice(optionName, defaultIndex, choices);
+        }
+    }
+    public struct OptionValue_Int
+    {
+        private OptionControl_Int Var_OptionControl;
+        public bool ControlEnabled
+        {
+            get { return Var_OptionControl.Enabled; }
+            set { Var_OptionControl.Enabled = value; }
+        }
+        public void PlaceControlIntoAnotherControl(Control parentControl)
+        {
+            parentControl.Controls.Add(Var_OptionControl);
+            Var_OptionControl.Size = new Size(
+                parentControl.Size.Width - 25,
+                Var_OptionControl.Size.Height);
+        }
+
+        public int MinValue
+        {
+            get
+            {
+                return Var_OptionControl.Min;
+            }
+        }
+        public int MaxValue
+        {
+            get
+            {
+                return Var_OptionControl.Max;
+            }
+        }
+        public int Value
+        {
+            get
+            {
+                return Var_OptionControl.Get_Value();
+            }
+            set
+            {
+                Var_OptionControl.Set_Value(value);
+            }
+        }
+
+        public OptionValue_Int(string optionName, int defaultValue, int min, int max)
+        {
+            Var_OptionControl = new OptionControl_Int(optionName, defaultValue, min, max);
+        }
+    }
 
     public partial class Form_Main : Form
     {
         //Options
         #region
+        private struct OptionFileArgument
+        {
+            ///<summary>Literal value of argument</summary>
+            public string Value;
+            ///<summary>Whether or not value is a string</summary>
+            public bool IsAString;
+
+            public OptionFileArgument(string value, bool isAString)
+            {
+                Value = value;
+                IsAString = isAString;
+            }
+        }
         private Dictionary<string, object> KnownOptions =
             new Dictionary<string, object>();
         private Dictionary<string, string> UnknownOptions = 
@@ -53,7 +151,31 @@ namespace RCT3Pal
         {
             OptionValue_Bool optionValue = new OptionValue_Bool(optionName, isTrue);
             KnownOptions.Add(optionName, optionValue);
-            Panel_Options.Controls.Add(optionValue.OptionControl);
+            optionValue.PlaceControlIntoAnotherControl(Panel_Options_Main);
+        }
+        public void AddKnownOption_Choice(string optionName, int defaultIndex, params string[] choices)
+        {
+            OptionValue_Choice optionValue = new OptionValue_Choice(optionName, defaultIndex, choices);
+            KnownOptions.Add(optionName, optionValue);
+            optionValue.PlaceControlIntoAnotherControl(Panel_Options_Main);
+        }
+        public void AddKnownOption_Int(string optionName, int defaultValue)
+        {
+            OptionValue_Int optionValue = new OptionValue_Int(optionName, defaultValue, int.MinValue, int.MaxValue);
+            KnownOptions.Add(optionName, optionValue);
+            optionValue.PlaceControlIntoAnotherControl(Panel_Options_Main);
+        }
+        public void AddKnownOption_Int(string optionName, int defaultValue, int min)
+        {
+            OptionValue_Int optionValue = new OptionValue_Int(optionName, defaultValue, min, int.MaxValue);
+            KnownOptions.Add(optionName, optionValue);
+            optionValue.PlaceControlIntoAnotherControl(Panel_Options_Main);
+        }
+        public void AddKnownOption_Int(string optionName, int defaultValue, int min, int max)
+        {
+            OptionValue_Int optionValue = new OptionValue_Int(optionName, defaultValue, min, max);
+            KnownOptions.Add(optionName, optionValue);
+            optionValue.PlaceControlIntoAnotherControl(Panel_Options_Main);
         }
         private string ReadStringFromString(string str, int startPos, out int endPos) //endPos is end of string chunk (prev char is closing ")
         {
@@ -82,9 +204,9 @@ namespace RCT3Pal
         #region
         private void Fun_Options_Load(string[] lines)
         {
-            List<(string, bool)> extractArguments(string line)//value, whether or not value is a string
+            List<OptionFileArgument> extractArguments(string line)//value, whether or not value is a string
             {
-                List<(string, bool)> args = new List<(string, bool)>();
+                List<OptionFileArgument> args = new List<OptionFileArgument>();
 
                 char[] line_char = line.ToCharArray();
                 int pos = 0;
@@ -96,7 +218,7 @@ namespace RCT3Pal
                     {
                         if (cc == 0x22)
                         {
-                            args.Add((ReadStringFromString(line, pos, out pos), true));
+                            args.Add(new OptionFileArgument(ReadStringFromString(line, pos, out pos), true));
                         }
                         else
                         {
@@ -111,7 +233,7 @@ namespace RCT3Pal
                                 arg_Chars.Add(cc);
                                 pos += 1;
                             }
-                            args.Add((new string(arg_Chars.ToArray()), false));
+                            args.Add(new OptionFileArgument(new string(arg_Chars.ToArray()), false));
                         }
                     }
                     pos += 1;
@@ -119,7 +241,9 @@ namespace RCT3Pal
 
                 return args;
             }
-            
+
+            UnknownOptions.Clear();
+
             for (int ll = 0; ll < lines.Length; ll += 1)
             {
                 string line = lines[ll];
@@ -138,7 +262,7 @@ namespace RCT3Pal
                 }
                 if (KnownOptions.ContainsKey(line_name))
                 {
-                    List<(string, bool)> args_AsStrings = extractArguments(line_value);
+                    List<OptionFileArgument> args_AsStrings = extractArguments(line_value);
 
                     object optionValue = KnownOptions[line_name];
 
@@ -150,13 +274,54 @@ namespace RCT3Pal
                         {
                             v.IsTrue = true;
                         }
-                        else if (args_AsStrings[0].Item2)
+                        else if (args_AsStrings[0].IsAString)
                         {
                             v.IsTrue = false;
                         }
                         else
                         {
-                            v.IsTrue = (args_AsStrings[0].Item1 == "1");
+                            v.IsTrue = (args_AsStrings[0].Value == "1");
+                        }
+                    }
+                    else if (optionValue.GetType() == typeof(OptionValue_Choice))
+                    {
+                        OptionValue_Choice v = (OptionValue_Choice)optionValue;
+
+                        if (args_AsStrings.Count == 0)
+                        {
+                            v.SelectedIndex = 0;
+                        }
+                        else if (args_AsStrings[0].IsAString)
+                        {
+                            v.SelectedIndex = 0;
+                        }
+                        else
+                        {
+
+                            if (int.TryParse(args_AsStrings[0].Value, out int vv))
+                                v.SelectedIndex = vv;
+                            else
+                                v.SelectedIndex = 0;
+                        }
+                    }
+                    else if (optionValue.GetType() == typeof(OptionValue_Int))
+                    {
+                        OptionValue_Int v = (OptionValue_Int)optionValue;
+
+                        if (args_AsStrings.Count == 0)
+                        {
+                            v.Value = v.MinValue;
+                        }
+                        else if (args_AsStrings[0].IsAString)
+                        {
+                            v.Value = v.MinValue;
+                        }
+                        else
+                        {
+                            if (int.TryParse(args_AsStrings[0].Value, out int vv))
+                                v.Value = vv;
+                            else
+                                v.Value = v.MinValue;
                         }
                     }
                 }
@@ -187,8 +352,16 @@ namespace RCT3Pal
                 
                 if (kvp.Value.GetType() == typeof(OptionValue_Bool))
                 {
-                    line = line + (((OptionValue_Bool)kvp.Value).IsTrue ?
-                        " 1" : " 0");
+                    line = line + " " + (((OptionValue_Bool)kvp.Value).IsTrue ?
+                        "1" : "0");
+                }
+                else if (kvp.Value.GetType() == typeof(OptionValue_Choice))
+                {
+                    line = line + " " + ((OptionValue_Choice)kvp.Value).SelectedIndex.ToString();
+                }
+                else if (kvp.Value.GetType() == typeof(OptionValue_Int))
+                {
+                    line = line + " " + ((OptionValue_Int)kvp.Value).Value.ToString();
                 }
 
                 lines_List.Add(line);
@@ -394,6 +567,16 @@ namespace RCT3Pal
 
             AddKnownOption_Bool("TrackAllowSameTrackIntersect", false);
             AddKnownOption_Bool("AttractionSceneryAllowSceneryIntersect", false);
+            AddKnownOption_Bool("AttractionSceneryAllowTerrainIntersect", false);
+            AddKnownOption_Choice("TemperatureUnits", 1, "Celsius", "Fahrenheit");
+            AddKnownOption_Choice("Units", 1, "Metric", "Imperial", "SI");
+            AddKnownOption_Choice("Currency", 1, "£", "$", "€", "¥", "Kr", "NT$", "AU$", "NZ$", "HK$", "SG$");
+            AddKnownOption_Choice("ScreenGFDriver", 0, "GF2", "GF4");
+            AddKnownOption_Choice("ScreenPixelFormat", 0, "A8R8G8B8", "R5G6B5", "X8R8G8B8");
+            AddKnownOption_Int("MusicVolume", 100, 0, 100);
+            AddKnownOption_Int("GUIVolume", 100, 0, 100);
+            AddKnownOption_Int("GameVolume", 100, 0, 100);
+
 
             //Load configurations
             #region
@@ -433,11 +616,23 @@ namespace RCT3Pal
             foreach (KeyValuePair<string, object> kvp in KnownOptions)
             {
                 if (kvp.Value.GetType() == typeof(OptionValue_Bool))
-                    ((OptionValue_Bool)kvp.Value).OptionControl.Enabled = (!rct3IsRunning);
+                {
+                    OptionValue_Bool value = ((OptionValue_Bool)kvp.Value);
+                    value.ControlEnabled = (!rct3IsRunning);
+                }
+                else if (kvp.Value.GetType() == typeof(OptionValue_Choice))
+                {
+                    OptionValue_Choice value = ((OptionValue_Choice)kvp.Value);
+                    value.ControlEnabled = (!rct3IsRunning);
+                }
+                else if (kvp.Value.GetType() == typeof(OptionValue_Int))
+                {
+                    OptionValue_Int value = ((OptionValue_Int)kvp.Value);
+                    value.ControlEnabled = (!rct3IsRunning);
+                }
             }
 
             //Custom content
-            CheckBox_UseCustomContent.Enabled = (!rct3IsRunning);
             Button_CreateCustom.Enabled = (!rct3IsRunning);
         }
         private async void RunRCT3()
@@ -473,69 +668,6 @@ namespace RCT3Pal
                 mod_Options = false;
             else if (!IfExists_OptionsDirectory_Options())
                 mod_Options = false;
-
-            bool mod_CustomContent = false;
-            if (IfExists_SaveDirectory())
-            {
-                mod_CustomContent = CheckBox_UseCustomContent.Checked;
-                if (!TryToDeleteDirectories(Config_SaveDirectory, Prefix_Original + "*"))
-                    return;
-            }
-
-            //Change Resource Folders (if using Custom Content)
-            List<string> dirs_Exe_NotRCT3Pal = null;
-            List<string> dirs_Sav_NotRCT3Pal = null;
-            List<string> dirs_Exe_Custom = null;
-            List<string> dirs_Sav_Custom = null;
-            List<string> dirs_Exe_Original = null;
-            List<string> dirs_Sav_Original = null;
-            #region
-            if (mod_CustomContent)
-            {
-                if (!Fun.TryToFindRCT3PalFolders(
-                    Config_ExecutableDirectory,
-                    Config_SaveDirectory,
-                    Prefix_Custom,
-                    Prefix_Original,
-                    out dirs_Exe_NotRCT3Pal,
-                    out dirs_Sav_NotRCT3Pal,
-                    out dirs_Exe_Custom,
-                    out dirs_Sav_Custom,
-                    out dirs_Exe_Original,
-                    out dirs_Sav_Original))
-                {
-                    return;
-                }
-                
-                //Rename <NonRCT3PalFolder> -> <Prefix_Original><NonRCT3PalFolder>
-                foreach (string dir in dirs_Exe_NotRCT3Pal)
-                    Directory.Move(dir,
-                        Fun.DirectoryAndFile(
-                            Config_ExecutableDirectory,
-                            Prefix_Original + Path.GetFileName(dir))
-                        );
-                foreach (string dir in dirs_Sav_NotRCT3Pal)
-                    Directory.Move(dir,
-                        Fun.DirectoryAndFile(
-                            Config_SaveDirectory,
-                            Prefix_Original + Path.GetFileName(dir))
-                        );
-
-                //Rename <Prefix_Custom><CustomFolder> -> <CustomFolder>
-                foreach (string dir in dirs_Exe_Custom)
-                    Directory.Move(dir,
-                        Fun.DirectoryAndFile(
-                            Config_ExecutableDirectory,
-                            Path.GetFileName(dir).Substring(Prefix_Custom.Length))
-                        );
-                foreach (string dir in dirs_Sav_Custom)
-                    Directory.Move(dir,
-                        Fun.DirectoryAndFile(
-                            Config_SaveDirectory,
-                            Path.GetFileName(dir).Substring(Prefix_Custom.Length))
-                        );
-            }
-            #endregion
 
             //Backup and modify Options file (if modding options)
             string temp_OptionsFile;
@@ -596,43 +728,6 @@ namespace RCT3Pal
             {
                 File.Delete(Config_OptionsDirectory_Options);
                 File.Move(temp_OptionsFile, Config_OptionsDirectory_Options);
-            }
-            #endregion
-
-
-            //Change Resource Folders Back
-            #region
-            if (mod_CustomContent)
-            {
-                //Rename <CustomFolder> -> <Prefix_Custom><CustomFolder>
-                foreach (string dir in dirs_Exe_Custom)
-                    Directory.Move(
-                        Fun.DirectoryAndFile(
-                            Config_ExecutableDirectory,
-                            Path.GetFileName(dir).Substring(Prefix_Custom.Length)),
-                        dir);
-                foreach (string dir in dirs_Sav_Custom)
-                    Directory.Move(
-                        Fun.DirectoryAndFile(
-                            Config_SaveDirectory,
-                            Path.GetFileName(dir).Substring(Prefix_Custom.Length)),
-                        dir);
-
-                //Rename <Prefix_Original><NonRCT3PalFolder> -> <NonRCT3PalFolder>
-                foreach (string dir in dirs_Exe_NotRCT3Pal)
-                    Directory.Move(
-                        Fun.DirectoryAndFile(
-                            Config_ExecutableDirectory,
-                            Prefix_Original + Path.GetFileName(dir)),
-                        dir);
-                foreach (string dir in dirs_Sav_NotRCT3Pal)
-                {
-                    Directory.Move(
-                          Fun.DirectoryAndFile(
-                              Config_SaveDirectory,
-                              Prefix_Original + Path.GetFileName(dir)),
-                          dir);
-                }
             }
             #endregion
         }
@@ -728,6 +823,16 @@ namespace RCT3Pal
         private void Button_OtherOptions_Click(object sender, EventArgs e)
         {
             Form_OtherOptions.EditOtherOptions(UnknownOptions);
+        }
+
+        private void Panel_Options_Main_Resize(object sender, EventArgs e)
+        {
+            for (int n = 0; n < Panel_Options_Main.Controls.Count; n += 1)
+            {
+                Panel_Options_Main.Controls[n].Size = new Size(
+                    Panel_Options_Main.Width - 25,
+                    Panel_Options_Main.Controls[n].Size.Height);
+            }
         }
     }
 }
