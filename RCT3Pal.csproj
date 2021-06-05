@@ -68,6 +68,12 @@
     <Compile Include="Form_CreateCustomFolders.Designer.cs">
       <DependentUpon>Form_CreateCustomFolders.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_CustomAssets.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_CustomAssets.Designer.cs">
+      <DependentUpon>Form_CustomAssets.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form_Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,6 +115,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_CreateCustomFolders.resx">
       <DependentUpon>Form_CreateCustomFolders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_CustomAssets.resx">
+      <DependentUpon>Form_CustomAssets.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_Main.resx">
       <DependentUpon>Form_Main.cs</DependentUpon>

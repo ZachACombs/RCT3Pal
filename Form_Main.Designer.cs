@@ -45,16 +45,18 @@ namespace RCT3Pal
             this.GroupBox_Options = new System.Windows.Forms.GroupBox();
             this.Panel_Options_Main = new System.Windows.Forms.FlowLayoutPanel();
             this.Panel_Options_Right = new System.Windows.Forms.Panel();
-            this.GroupBox_CustomContent = new System.Windows.Forms.GroupBox();
+            this.GroupBox_CustomAssets = new System.Windows.Forms.GroupBox();
             this.Panel_RCT3 = new System.Windows.Forms.Panel();
             this.Panel_CustomContent = new System.Windows.Forms.Panel();
             this.Panel_Options = new System.Windows.Forms.Panel();
-            this.Button_CreateCustom = new System.Windows.Forms.Button();
+            this.Label_UseCustomAssets = new System.Windows.Forms.Label();
+            this.Label_CustomAssets = new System.Windows.Forms.Label();
+            this.Button_CustomAssets = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.GroupBox_Options.SuspendLayout();
             this.Panel_Options_Right.SuspendLayout();
-            this.GroupBox_CustomContent.SuspendLayout();
+            this.GroupBox_CustomAssets.SuspendLayout();
             this.Panel_RCT3.SuspendLayout();
             this.Panel_CustomContent.SuspendLayout();
             this.Panel_Options.SuspendLayout();
@@ -158,7 +160,7 @@ namespace RCT3Pal
             this.GroupBox_Options.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GroupBox_Options.Location = new System.Drawing.Point(12, 3);
             this.GroupBox_Options.Name = "GroupBox_Options";
-            this.GroupBox_Options.Size = new System.Drawing.Size(600, 293);
+            this.GroupBox_Options.Size = new System.Drawing.Size(600, 252);
             this.GroupBox_Options.TabIndex = 7;
             this.GroupBox_Options.TabStop = false;
             this.GroupBox_Options.Text = "Options";
@@ -170,7 +172,7 @@ namespace RCT3Pal
             this.Panel_Options_Main.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Panel_Options_Main.Location = new System.Drawing.Point(3, 16);
             this.Panel_Options_Main.Name = "Panel_Options_Main";
-            this.Panel_Options_Main.Size = new System.Drawing.Size(487, 274);
+            this.Panel_Options_Main.Size = new System.Drawing.Size(487, 233);
             this.Panel_Options_Main.TabIndex = 7;
             this.Panel_Options_Main.Resize += new System.EventHandler(this.Panel_Options_Main_Resize);
             // 
@@ -182,19 +184,21 @@ namespace RCT3Pal
             this.Panel_Options_Right.Dock = System.Windows.Forms.DockStyle.Right;
             this.Panel_Options_Right.Location = new System.Drawing.Point(490, 16);
             this.Panel_Options_Right.Name = "Panel_Options_Right";
-            this.Panel_Options_Right.Size = new System.Drawing.Size(107, 274);
+            this.Panel_Options_Right.Size = new System.Drawing.Size(107, 233);
             this.Panel_Options_Right.TabIndex = 8;
             // 
-            // GroupBox_CustomContent
+            // GroupBox_CustomAssets
             // 
-            this.GroupBox_CustomContent.Controls.Add(this.Button_CreateCustom);
-            this.GroupBox_CustomContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GroupBox_CustomContent.Location = new System.Drawing.Point(12, 3);
-            this.GroupBox_CustomContent.Name = "GroupBox_CustomContent";
-            this.GroupBox_CustomContent.Size = new System.Drawing.Size(600, 53);
-            this.GroupBox_CustomContent.TabIndex = 8;
-            this.GroupBox_CustomContent.TabStop = false;
-            this.GroupBox_CustomContent.Text = "Custom Content (Coming Soon)";
+            this.GroupBox_CustomAssets.Controls.Add(this.Button_CustomAssets);
+            this.GroupBox_CustomAssets.Controls.Add(this.Label_CustomAssets);
+            this.GroupBox_CustomAssets.Controls.Add(this.Label_UseCustomAssets);
+            this.GroupBox_CustomAssets.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GroupBox_CustomAssets.Location = new System.Drawing.Point(12, 3);
+            this.GroupBox_CustomAssets.Name = "GroupBox_CustomAssets";
+            this.GroupBox_CustomAssets.Size = new System.Drawing.Size(600, 94);
+            this.GroupBox_CustomAssets.TabIndex = 8;
+            this.GroupBox_CustomAssets.TabStop = false;
+            this.GroupBox_CustomAssets.Text = "Custom Assets (Coming Soon)";
             // 
             // Panel_RCT3
             // 
@@ -207,12 +211,12 @@ namespace RCT3Pal
             // 
             // Panel_CustomContent
             // 
-            this.Panel_CustomContent.Controls.Add(this.GroupBox_CustomContent);
+            this.Panel_CustomContent.Controls.Add(this.GroupBox_CustomAssets);
             this.Panel_CustomContent.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Panel_CustomContent.Location = new System.Drawing.Point(0, 323);
+            this.Panel_CustomContent.Location = new System.Drawing.Point(0, 282);
             this.Panel_CustomContent.Name = "Panel_CustomContent";
             this.Panel_CustomContent.Padding = new System.Windows.Forms.Padding(12, 3, 12, 3);
-            this.Panel_CustomContent.Size = new System.Drawing.Size(624, 59);
+            this.Panel_CustomContent.Size = new System.Drawing.Size(624, 100);
             this.Panel_CustomContent.TabIndex = 10;
             // 
             // Panel_Options
@@ -222,19 +226,37 @@ namespace RCT3Pal
             this.Panel_Options.Location = new System.Drawing.Point(0, 24);
             this.Panel_Options.Name = "Panel_Options";
             this.Panel_Options.Padding = new System.Windows.Forms.Padding(12, 3, 12, 3);
-            this.Panel_Options.Size = new System.Drawing.Size(624, 299);
+            this.Panel_Options.Size = new System.Drawing.Size(624, 258);
             this.Panel_Options.TabIndex = 11;
             // 
-            // Button_CreateCustom
+            // Label_UseCustomAssets
             // 
-            this.Button_CreateCustom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.Button_CreateCustom.Location = new System.Drawing.Point(472, 10);
-            this.Button_CreateCustom.Name = "Button_CreateCustom";
-            this.Button_CreateCustom.Size = new System.Drawing.Size(125, 23);
-            this.Button_CreateCustom.TabIndex = 1;
-            this.Button_CreateCustom.Text = "Create Custom Folders";
-            this.Button_CreateCustom.UseVisualStyleBackColor = true;
-            this.Button_CreateCustom.Click += new System.EventHandler(this.Button_CreateCustom_Click);
+            this.Label_UseCustomAssets.AutoSize = true;
+            this.Label_UseCustomAssets.Location = new System.Drawing.Point(6, 36);
+            this.Label_UseCustomAssets.Name = "Label_UseCustomAssets";
+            this.Label_UseCustomAssets.Size = new System.Drawing.Size(35, 13);
+            this.Label_UseCustomAssets.TabIndex = 2;
+            this.Label_UseCustomAssets.Text = "label1";
+            // 
+            // Label_CustomAssets
+            // 
+            this.Label_CustomAssets.AutoSize = true;
+            this.Label_CustomAssets.Location = new System.Drawing.Point(6, 23);
+            this.Label_CustomAssets.Name = "Label_CustomAssets";
+            this.Label_CustomAssets.Size = new System.Drawing.Size(85, 13);
+            this.Label_CustomAssets.TabIndex = 3;
+            this.Label_CustomAssets.Text = "Current Settings:";
+            // 
+            // Button_CustomAssets
+            // 
+            this.Button_CustomAssets.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Button_CustomAssets.Location = new System.Drawing.Point(6, 65);
+            this.Button_CustomAssets.Name = "Button_CustomAssets";
+            this.Button_CustomAssets.Size = new System.Drawing.Size(75, 23);
+            this.Button_CustomAssets.TabIndex = 4;
+            this.Button_CustomAssets.Text = "Edit";
+            this.Button_CustomAssets.UseVisualStyleBackColor = true;
+            this.Button_CustomAssets.Click += new System.EventHandler(this.Button_CustomAssets_Click);
             // 
             // Form_Main
             // 
@@ -257,7 +279,8 @@ namespace RCT3Pal
             this.menuStrip1.PerformLayout();
             this.GroupBox_Options.ResumeLayout(false);
             this.Panel_Options_Right.ResumeLayout(false);
-            this.GroupBox_CustomContent.ResumeLayout(false);
+            this.GroupBox_CustomAssets.ResumeLayout(false);
+            this.GroupBox_CustomAssets.PerformLayout();
             this.Panel_RCT3.ResumeLayout(false);
             this.Panel_CustomContent.ResumeLayout(false);
             this.Panel_Options.ResumeLayout(false);
@@ -280,13 +303,15 @@ namespace RCT3Pal
         private System.Windows.Forms.Button Button_ExportOptions;
         private System.Windows.Forms.GroupBox GroupBox_Options;
         private System.Windows.Forms.FlowLayoutPanel Panel_Options_Main;
-        private System.Windows.Forms.GroupBox GroupBox_CustomContent;
+        private System.Windows.Forms.GroupBox GroupBox_CustomAssets;
         private System.Windows.Forms.ToolStripMenuItem MenuItem_About;
         private System.Windows.Forms.Panel Panel_RCT3;
         private System.Windows.Forms.Panel Panel_Options;
         private System.Windows.Forms.Panel Panel_CustomContent;
         private System.Windows.Forms.Panel Panel_Options_Right;
-        private System.Windows.Forms.Button Button_CreateCustom;
+        private System.Windows.Forms.Label Label_UseCustomAssets;
+        private System.Windows.Forms.Label Label_CustomAssets;
+        private System.Windows.Forms.Button Button_CustomAssets;
     }
 }
 

@@ -390,9 +390,82 @@ namespace RCT3Pal
 
         #endregion
 
-        //Custom Content
+        //Custom assets
         private const string Prefix_Custom = "RCT3Pal_Custom_";
         private const string Prefix_Original = "RCT3Pal_Original_";
+        private string[] RCT3Folders = {
+            "ACAM",
+            "Animals",
+            "AttractSequences",
+            "Avatars",
+            "Campaigns",
+            "CarriedItems",
+            "Cars",
+            "Characters",
+            "Coaster Designs",
+            "ContentPacks",
+            "Enclosures",
+            "FireworkDisplays",
+            "Fireworks",
+            "gui",
+            "Inventions",
+            "Lasers",
+            "LaserWriting",
+            "Lights",
+            "Movies",
+            "Music",
+            "Objects",
+            "ParticleEffects",
+            "Particles",
+            "Path",
+            "People",
+            "Pool",
+            "Queue",
+            "Rain",
+            "RideIcons",
+            "Sky",
+            "Slideshow",
+            "Sounds",
+            "StaffUniforms",
+            "Style",
+            "Supports",
+            "terrain",
+            "test",
+            "tracks",
+            "Tutorials",
+            "Water",
+            "Waterfall",
+            "WaterFlow",
+            "WaterJets",
+            "WildAnimals",
+        };
+        private string[] RCT3Files = {
+            "CrashDump.txt",
+            "GraphFix.log",
+            "Graphics.fix",
+            "ijl15.dll",
+            "m4d.dll",
+            "Main.common.ovl",
+            "Main.common.ovl.CHK",
+            "Main.unique.ovl",
+            "Main.unique.ovl.CHK",
+            "msvcr71.dll",
+            "nullbmp.common.ovl",
+            "nullbmp.unique.ovl",
+            "Options.txt",
+            "rct3.dgf",
+            "RCT3.exe",
+            "SCCache.bin",
+            "STCache.bin",
+        };
+        private bool UseCustomAssets;
+        private void Set_UseCustomAssets(bool value)
+        {
+            UseCustomAssets = value;
+            Label_UseCustomAssets.Text = (value ?
+                "Use Custom Assets" :
+                "Use Original Assets");
+        }
 
         //RCT3 Process
         private System.Diagnostics.Process RCT3Process;
@@ -422,10 +495,9 @@ namespace RCT3Pal
         #region
         private string ConfigFilePath;
 
-
         private string Config_ExecutableDirectory;
         private string Config_ExecutableDirectory_Executable;
-        private bool IfExists_ExecutableDirectory()
+        private bool PathIsValid_ExecutableDirectory()
         {
             if (!Directory.Exists(Config_ExecutableDirectory))
             {
@@ -436,10 +508,6 @@ namespace RCT3Pal
                     MessageBoxIcon.Error);
                 return false;
             }
-            return true;
-        }
-        private bool IfExists_ExecutableDirectory_Executable()
-        {
             if (!File.Exists(Config_ExecutableDirectory_Executable))
             {
                 MessageBox.Show(
@@ -451,25 +519,10 @@ namespace RCT3Pal
             }
             return true;
         }
-        private void Set_ExecutableDirectory(string executableDirectory)
-        {
-            Config_ExecutableDirectory = executableDirectory;
-            Config_ExecutableDirectory_Executable = Fun.DirectoryAndFile(
-                executableDirectory,
-                "RCT3.exe");
-
-            Button_RCT3.Enabled = false;
-            if (!IfExists_ExecutableDirectory())
-                return;
-            if (!IfExists_ExecutableDirectory_Executable())
-                return;
-            Button_RCT3.Enabled = true;
-        }
-        
 
         private string Config_OptionsDirectory;
         private string Config_OptionsDirectory_Options;
-        private bool IfExists_OptionsDirectory()
+        private bool PathIsValid_OptionsDirectory()
         {
             if (!Directory.Exists(Config_OptionsDirectory))
             {
@@ -480,10 +533,6 @@ namespace RCT3Pal
                     MessageBoxIcon.Error);
                 return false;
             }
-            return true;
-        }
-        private bool IfExists_OptionsDirectory_Options()
-        {
             if (!File.Exists(Config_OptionsDirectory_Options))
             {
                 MessageBox.Show(
@@ -495,26 +544,9 @@ namespace RCT3Pal
             }
             return true;
         }
-        private void Set_OptionsDirectory(string optionsDirectory)
-        {
-            Config_OptionsDirectory = optionsDirectory;
-            Config_OptionsDirectory_Options = Fun.DirectoryAndFile(
-                optionsDirectory,
-                "Options.txt");
-
-            GroupBox_Options.Enabled = false;
-            if (!IfExists_OptionsDirectory())
-                return;
-            if (!IfExists_OptionsDirectory_Options())
-                return;
-            GroupBox_Options.Enabled = true;
-
-            Options_Load();
-        }
-
 
         private string Config_SaveDirectory;
-        private bool IfExists_SaveDirectory()
+        private bool PathIsValid_SaveDirectory()
         {
             if (!Directory.Exists(Config_SaveDirectory))
             {
@@ -527,16 +559,80 @@ namespace RCT3Pal
             }
             return true;
         }
-        private void Set_SaveDirectory(string saveDirectory)
+        
+        private void Set_ConfigDirectories(string executableDirectory, string optionsDirectory, string saveDirectory)
         {
+            Config_ExecutableDirectory = executableDirectory;
+            Config_ExecutableDirectory_Executable = Fun.DirectoryAndFile(
+                executableDirectory,
+                "RCT3.exe");
+
+            Config_OptionsDirectory = optionsDirectory;
+            Config_OptionsDirectory_Options = Fun.DirectoryAndFile(
+                optionsDirectory,
+                "Options.txt");
+
             Config_SaveDirectory = saveDirectory;
 
-            GroupBox_CustomContent.Enabled = false;
-            if (!IfExists_SaveDirectory())
-                return;
-            GroupBox_CustomContent.Enabled = true;
-        }
 
+            bool pathIsValid_ExecutableDirectory = PathIsValid_ExecutableDirectory();
+            bool pathIsValid_OptionsDirectory = PathIsValid_OptionsDirectory();
+            bool pathIsValid_SaveDirectory = PathIsValid_SaveDirectory();
+
+            Button_RCT3.Enabled = pathIsValid_ExecutableDirectory;
+            
+            if (pathIsValid_OptionsDirectory)
+            {
+                GroupBox_Options.Enabled = true;
+                Options_Load();
+            }
+            else
+            {
+                GroupBox_Options.Enabled = false;
+            }
+            
+            if (pathIsValid_ExecutableDirectory & pathIsValid_SaveDirectory)
+            {
+                GroupBox_CustomAssets.Enabled = true;
+                string[] exe_OriginalFolders = Directory.GetDirectories(executableDirectory, Prefix_Original + "*");
+                string[] exe_OriginalFiles = Directory.GetFiles(executableDirectory, Prefix_Original + "*");
+                string[] exe_CustomFolders = Directory.GetDirectories(executableDirectory, Prefix_Custom + "*");
+                string[] exe_CustomFiles = Directory.GetFiles(executableDirectory, Prefix_Custom + "*");
+                bool hasOriginalFilesAndFolders = (
+                    exe_OriginalFiles.Length + 
+                    exe_OriginalFolders.Length) > 0;
+                bool hasCustomFilesAndFolders = (
+                    exe_CustomFiles.Length + 
+                    exe_CustomFolders.Length) > 0;
+                if ((hasOriginalFilesAndFolders) & (hasCustomFilesAndFolders))
+                {
+                    MessageBox.Show(
+                        "There are both files/folders marked as original and files/folders marked as custom",
+                        "Found Both Original and Custom Files/Folders",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    GroupBox_CustomAssets.Enabled = false;
+                }
+                else if (hasOriginalFilesAndFolders)
+                {
+                    Set_UseCustomAssets(true);
+                }
+                else if (hasCustomFilesAndFolders)
+                {
+                    Set_UseCustomAssets(false);
+                }
+                else
+                {
+                    Set_UseCustomAssets(false);
+                }
+            }
+            else
+            {
+                GroupBox_CustomAssets.Enabled = false;
+            }
+            
+            
+        }
 
         private void OpenConfig()
         {
@@ -546,9 +642,7 @@ namespace RCT3Pal
                 Config_SaveDirectory);
             if (config.ShowDialog() == DialogResult.Cancel)
                 return;
-            Set_ExecutableDirectory(config.ExecutableDirectory);
-            Set_OptionsDirectory(config.OptionsDirectory);
-            Set_SaveDirectory(config.SaveDirectory);
+            Set_ConfigDirectories(config.ExecutableDirectory, config.OptionsDirectory, config.SaveDirectory);
             ConfigFile.Save(ConfigFilePath,
                 Config_ExecutableDirectory,
                 Config_OptionsDirectory,
@@ -577,9 +671,9 @@ namespace RCT3Pal
             AddKnownOption_Int("GUIVolume", 100, 0, 100);
             AddKnownOption_Int("GameVolume", 100, 0, 100);
 
-
             //Load configurations
             #region
+            Set_UseCustomAssets(false);
             ConfigFilePath = ProgramDirectory + "\\RCT3Pal_Config.xml";
             Config_ExecutableDirectory = "";
             Config_OptionsDirectory = "";
@@ -594,9 +688,7 @@ namespace RCT3Pal
                     out string optionsDirectory,
                     out string saveDirectory))
                 {
-                    Set_ExecutableDirectory(executableDirectory);
-                    Set_OptionsDirectory(optionsDirectory);
-                    Set_SaveDirectory(saveDirectory);
+                    Set_ConfigDirectories(executableDirectory, optionsDirectory, saveDirectory);
                 }
 
             }
@@ -632,8 +724,8 @@ namespace RCT3Pal
                 }
             }
 
-            //Custom content
-            Button_CreateCustom.Enabled = (!rct3IsRunning);
+            //Custom Assets
+            Button_CustomAssets.Enabled = (!rct3IsRunning);
         }
         private async void RunRCT3()
         {
@@ -664,9 +756,7 @@ namespace RCT3Pal
                 return;
 
             bool mod_Options = true;
-            if (!IfExists_OptionsDirectory())
-                mod_Options = false;
-            else if (!IfExists_OptionsDirectory_Options())
+            if (!PathIsValid_OptionsDirectory())
                 mod_Options = false;
 
             //Backup and modify Options file (if modding options)
@@ -798,23 +888,6 @@ namespace RCT3Pal
             Options_Save(saveFileDialog.FileName);
         }
 
-        private void Button_CreateCustom_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(
-                "This will delete any existing Custom Folders in Executable Directory and Save Directory. Is this OK?",
-                "Is This OK",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning) == DialogResult.No)
-                return;
-
-            if (Form_CreateCustomFolders.Perform(
-                Config_ExecutableDirectory,
-                Config_SaveDirectory,
-                Prefix_Custom,
-                Prefix_Original) == DialogResult.Cancel)
-                return;
-        }
-
         private void MenuItem_About_Click(object sender, EventArgs e)
         {
             (new Form_About()).ShowDialog();
@@ -833,6 +906,22 @@ namespace RCT3Pal
                     Panel_Options_Main.Width - 25,
                     Panel_Options_Main.Controls[n].Size.Height);
             }
+        }
+
+        private void Button_CustomAssets_Click(object sender, EventArgs e)
+        {
+            Form_CustomAssets form = new Form_CustomAssets(
+                UseCustomAssets,
+                Config_ExecutableDirectory,
+                Config_SaveDirectory,
+                Prefix_Custom,
+                Prefix_Original);
+
+            if (form.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            Set_UseCustomAssets(form.UseCustomAssets);
+            //Add code here
         }
     }
 }

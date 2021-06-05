@@ -1,0 +1,102 @@
+bool mod_CustomContent = false;
+if (IfExists_SaveDirectory())
+{
+	mod_CustomContent = CheckBox_UseCustomContent.Checked;
+	if (!TryToDeleteDirectories(Config_SaveDirectory, Prefix_Original + "*"))
+		return;
+}
+
+
+
+//Change Resource Folders (if using Custom Content)
+List<string> dirs_Exe_NotRCT3Pal = null;
+List<string> dirs_Sav_NotRCT3Pal = null;
+List<string> dirs_Exe_Custom = null;
+List<string> dirs_Sav_Custom = null;
+List<string> dirs_Exe_Original = null;
+List<string> dirs_Sav_Original = null;
+#region
+if (mod_CustomContent)
+{
+	if (!Fun.TryToFindRCT3PalFolders(
+		Config_ExecutableDirectory,
+		Config_SaveDirectory,
+		Prefix_Custom,
+		Prefix_Original,
+		out dirs_Exe_NotRCT3Pal,
+		out dirs_Sav_NotRCT3Pal,
+		out dirs_Exe_Custom,
+		out dirs_Sav_Custom,
+		out dirs_Exe_Original,
+		out dirs_Sav_Original))
+	{
+		return;
+	}
+	
+	//Rename <NonRCT3PalFolder> -> <Prefix_Original><NonRCT3PalFolder>
+	foreach (string dir in dirs_Exe_NotRCT3Pal)
+		Directory.Move(dir,
+			Fun.DirectoryAndFile(
+				Config_ExecutableDirectory,
+				Prefix_Original + Path.GetFileName(dir))
+			);
+	foreach (string dir in dirs_Sav_NotRCT3Pal)
+		Directory.Move(dir,
+			Fun.DirectoryAndFile(
+				Config_SaveDirectory,
+				Prefix_Original + Path.GetFileName(dir))
+			);
+
+	//Rename <Prefix_Custom><CustomFolder> -> <CustomFolder>
+	foreach (string dir in dirs_Exe_Custom)
+		Directory.Move(dir,
+			Fun.DirectoryAndFile(
+				Config_ExecutableDirectory,
+				Path.GetFileName(dir).Substring(Prefix_Custom.Length))
+			);
+	foreach (string dir in dirs_Sav_Custom)
+		Directory.Move(dir,
+			Fun.DirectoryAndFile(
+				Config_SaveDirectory,
+				Path.GetFileName(dir).Substring(Prefix_Custom.Length))
+			);
+}
+#endregion
+
+
+
+//Change Resource Folders Back
+#region
+if (mod_CustomContent)
+{
+	//Rename <CustomFolder> -> <Prefix_Custom><CustomFolder>
+	foreach (string dir in dirs_Exe_Custom)
+		Directory.Move(
+			Fun.DirectoryAndFile(
+				Config_ExecutableDirectory,
+				Path.GetFileName(dir).Substring(Prefix_Custom.Length)),
+			dir);
+	foreach (string dir in dirs_Sav_Custom)
+		Directory.Move(
+			Fun.DirectoryAndFile(
+				Config_SaveDirectory,
+				Path.GetFileName(dir).Substring(Prefix_Custom.Length)),
+			dir);
+
+	//Rename <Prefix_Original><NonRCT3PalFolder> -> <NonRCT3PalFolder>
+	foreach (string dir in dirs_Exe_NotRCT3Pal)
+		Directory.Move(
+			Fun.DirectoryAndFile(
+				Config_ExecutableDirectory,
+				Prefix_Original + Path.GetFileName(dir)),
+			dir);
+	foreach (string dir in dirs_Sav_NotRCT3Pal)
+	{
+		Directory.Move(
+			  Fun.DirectoryAndFile(
+				  Config_SaveDirectory,
+				  Prefix_Original + Path.GetFileName(dir)),
+			  dir);
+	}
+}
+#endregion
