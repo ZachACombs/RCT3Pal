@@ -942,25 +942,7 @@ namespace RCT3Pal
                     n += 1;
                 return pathPrefix + n.ToString() + ext;
             }
-            bool TryToDeleteDirectories(string path, string searchPattern)
-            {
-                try
-                {
-                    string[] dirs = Directory.GetDirectories(path, searchPattern);
-                    foreach (string dir in dirs)
-                        Directory.Delete(dir, true);
-                }
-                catch(Exception ex)
-                {
-                    Fun.ShowErrorMessage("Could not remove specified folders from \"" + path + "\".", "Error Removing Folders", ex);
-                    return false;
-                }
-                return true;
-            }
-
-            if (!TryToDeleteDirectories(Config_ExecutableDirectory, Prefix_Original + "*"))
-                return;
-
+            
             bool mod_Options = true;
             if (!PathIsValid_OptionsDirectory(false))
                 mod_Options = false;
