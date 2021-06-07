@@ -96,67 +96,21 @@ namespace RCT3Pal
                 System.Windows.Forms.MessageBoxButtons.OK,
                 System.Windows.Forms.MessageBoxIcon.Error);
         }
-        public static bool TryToFindRCT3PalFolders(
-            string executableDirectory,
-            string saveDirectory,
-            string customFolderPrefix,
-            string originalFolderPrefix,
-            out List<string> dirs_Exe_NotRCT3Pal, //Are not affiliated with RCT3Pal
-            out List<string> dirs_Sav_NotRCT3Pal, //Are not affiliated with RCT3Pal
-            out List<string> dirs_Exe_Custom,
-            out List<string> dirs_Sav_Custom,
-            out List<string> dirs_Exe_Original,
-            out List<string> dirs_Sav_Original
-            )
+        
+        public static string PadString(string value, int charCount)
         {
-            dirs_Exe_NotRCT3Pal = new List<string>();
-            dirs_Sav_NotRCT3Pal = new List<string>();
-            dirs_Exe_Custom = new List<string>();
-            dirs_Sav_Custom = new List<string>();
-            dirs_Exe_Original = new List<string>();
-            dirs_Sav_Original = new List<string>();
-            string[] dirs_Exe;
-            try { dirs_Exe = Directory.GetDirectories(executableDirectory); }
-            catch (Exception ex)
+            if (charCount < 0)
+                throw new ArgumentException("Value is negative", nameof(charCount));
+
+            if (value.Length > charCount)
+                return value.Substring(0, charCount);
+
+            while (value.Length < charCount)
             {
-                ShowErrorMessage(
-                    "Could not search for directories in executable directory",
-                    "Error Searching Directory",
-                    ex);
-                return false;
-            }
-            string[] dirs_Sav;
-            try { dirs_Sav = Directory.GetDirectories(saveDirectory); }
-            catch (Exception ex)
-            {
-                ShowErrorMessage(
-                    "Could not search for directories in save directory",
-                    "Error Searching Directory",
-                    ex);
-                return false;
-            }
-            foreach (string dir in dirs_Exe)
-            {
-                string dirName = Path.GetFileName(dir);
-                if (dirName.IndexOf(customFolderPrefix) == 0)
-                    dirs_Exe_Custom.Add(dir);
-                else if (dirName.IndexOf(originalFolderPrefix) == 0)
-                    dirs_Exe_Original.Add(dir);
-                else
-                    dirs_Exe_NotRCT3Pal.Add(dir);
-            }
-            foreach (string dir in dirs_Sav)
-            {
-                string dirName = Path.GetFileName(dir);
-                if (dirName.IndexOf(customFolderPrefix) == 0)
-                    dirs_Sav_Custom.Add(dir);
-                else if (dirName.IndexOf(originalFolderPrefix) == 0)
-                    dirs_Sav_Original.Add(dir);
-                else
-                    dirs_Sav_NotRCT3Pal.Add(dir);
+                value = value + " ";
             }
 
-            return true;
+            return value;
         }
     }
 }

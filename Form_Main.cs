@@ -393,7 +393,7 @@ namespace RCT3Pal
         //Custom assets
         private const string Prefix_Custom = "RCT3Pal_Custom_";
         private const string Prefix_Original = "RCT3Pal_Original_";
-        private string[] RCT3Folders = {
+        private string[] Exe_RCT3Folders = {
             "ACAM",
             "Animals",
             "AttractSequences",
@@ -439,7 +439,7 @@ namespace RCT3Pal
             "WaterJets",
             "WildAnimals",
         };
-        private string[] RCT3Files = {
+        private string[] Exe_RCT3Files = {
             "CrashDump.txt",
             "GraphFix.log",
             "Graphics.fix",
@@ -457,6 +457,23 @@ namespace RCT3Pal
             "RCT3.exe",
             "SCCache.bin",
             "STCache.bin",
+        };
+        private string[] Sav_RCT3Folders = {
+            "Campaigns",
+            "Coasters",
+            "FireworkEffects",
+            "Fireworks",
+            "LaserEffects",
+            "LaserWriting",
+            "Parks",
+            "Peeps",
+            "Pools",
+            "Scenarios",
+            "Start New Scenarios",
+            "Structures",
+            "WaterJetEffects",
+        };
+        private string[] Sav_RCT3Files = {
         };
         private bool UseCustomAssets;
         private void Set_UseCustomAssets(bool value)
@@ -497,24 +514,26 @@ namespace RCT3Pal
 
         private string Config_ExecutableDirectory;
         private string Config_ExecutableDirectory_Executable;
-        private bool PathIsValid_ExecutableDirectory()
+        private bool PathIsValid_ExecutableDirectory(bool silent)
         {
             if (!Directory.Exists(Config_ExecutableDirectory))
             {
-                MessageBox.Show(
-                    "Could not find RCT3 directory",
-                    "Could Not Find RCT3 Directory",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                if (!silent)
+                    MessageBox.Show(
+                        "Could not find RCT3 directory",
+                        "Could Not Find RCT3 Directory",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
                 return false;
             }
             if (!File.Exists(Config_ExecutableDirectory_Executable))
             {
-                MessageBox.Show(
-                    "Could not find RCT3 executable",
-                    "Could Not Find RCT3 Executable",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                if (!silent)
+                    MessageBox.Show(
+                        "Could not find RCT3 executable",
+                        "Could Not Find RCT3 Executable",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
                 return false;
             }
             return true;
@@ -522,45 +541,234 @@ namespace RCT3Pal
 
         private string Config_OptionsDirectory;
         private string Config_OptionsDirectory_Options;
-        private bool PathIsValid_OptionsDirectory()
+        private bool PathIsValid_OptionsDirectory(bool silent)
         {
             if (!Directory.Exists(Config_OptionsDirectory))
             {
-                MessageBox.Show(
-                    "Could not find Options directory",
-                    "Could Not Find Options Directory",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                if (!silent) 
+                    MessageBox.Show(
+                        "Could not find Options directory",
+                        "Could Not Find Options Directory",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
                 return false;
             }
             if (!File.Exists(Config_OptionsDirectory_Options))
             {
-                MessageBox.Show(
-                    "Could not find Options File",
-                    "Could Not Find Options File",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                if (!silent)
+                    MessageBox.Show(
+                        "Could not find Options File",
+                        "Could Not Find Options File",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
                 return false;
             }
             return true;
         }
 
         private string Config_SaveDirectory;
-        private bool PathIsValid_SaveDirectory()
+        private bool PathIsValid_SaveDirectory(bool silent)
         {
             if (!Directory.Exists(Config_SaveDirectory))
             {
-                MessageBox.Show(
-                    "Could not find Save directory",
-                    "Could Not Find Save Directory",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                if (!silent)
+                    MessageBox.Show(
+                        "Could not find Save directory",
+                        "Could Not Find Save Directory",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
                 return false;
             }
             return true;
         }
         
-        private void Set_ConfigDirectories(string executableDirectory, string optionsDirectory, string saveDirectory)
+        private bool PathsAreValid_ExecutableDirectoryAndSaveDirectory(bool exe_Silent, bool sav_Silent)
+        {
+            if (PathIsValid_ExecutableDirectory(exe_Silent) & PathIsValid_SaveDirectory(sav_Silent))
+                return true;
+            return false;
+        }
+
+        private bool Config_DontShowBeginningWarning;
+
+        private enum LookThruExecutableAndSaveDirectoryReturn
+        {
+            ///<summary>Error finding files and folders in save directory or executable directory</summary>
+            CouldNotSearch = 0,
+
+            ///<summary>Found files and folders labeled as Original (Ex: RCT3Pal_Original_&lt;Filename&gt;)</summary>
+            FoundOriginalFilesAndFolders = 1,
+
+            ///<summary>Found files and folders labeled as Custom (Ex: RCT3Pal_Custom_&lt;Filename&gt;)</summary>
+            FoundCustomFilesAndFolders = 2,
+
+            ///<summary>Found files and folders labeled as Original as well as files and folders labeled as Custom</summary>
+            FoundOriginalAndCustomFilesAndFolders = 3,
+            
+            ///<summary>Found neither files and folders labeled as Original nor files and folders labeled as Custom</summary>
+            FoundNeitherOriginalNorCustomFilesAndFolders = 4,
+        }
+        private LookThruExecutableAndSaveDirectoryReturn LookThruExecutableAndSaveDirectory(
+            out string[] exe_OriginalFolders, out string[] exe_OriginalFiles,
+            out string[] exe_CustomFolders, out string[] exe_CustomFiles,
+            out string[] exe_UnmarkedFolders, out string[] exe_UnmarkedFiles,
+            out string[] sav_OriginalFolders, out string[] sav_OriginalFiles,
+            out string[] sav_CustomFolders, out string[] sav_CustomFiles,
+            out string[] sav_UnmarkedFolders, out string[] sav_UnmarkedFiles)
+        {
+            string[] exe_Folders;
+            string[] exe_Files;
+            string[] sav_Folders;
+            string[] sav_Files;
+            try
+            {
+                exe_Folders = Directory.GetDirectories(Config_ExecutableDirectory);
+                exe_Files = Directory.GetFiles(Config_ExecutableDirectory);
+                sav_Folders = Directory.GetDirectories(Config_SaveDirectory);
+                sav_Files = Directory.GetFiles(Config_SaveDirectory);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Could not search through Executable and Save directories",
+                    "Error Searching",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                exe_OriginalFolders = null;
+                exe_OriginalFiles = null;
+                exe_CustomFolders = null;
+                exe_CustomFiles = null;
+                exe_UnmarkedFolders = null;
+                exe_UnmarkedFiles = null;
+                sav_OriginalFolders = null;
+                sav_OriginalFiles = null;
+                sav_CustomFolders = null;
+                sav_CustomFiles = null;
+                sav_UnmarkedFolders = null;
+                sav_UnmarkedFiles = null;
+                return LookThruExecutableAndSaveDirectoryReturn.CouldNotSearch;
+            }
+
+            void sort(string[] folders, string[] files,
+                out string[] originalFolders, out string[] originalFiles,
+                out string[] customFolders, out string[] customFiles,
+                out string[] unmarkedFolders, out string[] unmarkedFiles)
+            {
+                List<string> originalFolders_List = new List<string>();
+                List<string> customFolders_List = new List<string>();
+                List<string> unmarkedFolders_List = new List<string>();
+                for (int n = 0; n < folders.Length; n += 1)
+                {
+                    string folder = folders[n];
+                    string folderName = Path.GetFileName(folder);
+                    if (folderName.IndexOf(Prefix_Original) == 0)
+                        originalFolders_List.Add(folder);
+                    else if (folderName.IndexOf(Prefix_Custom) == 0)
+                        customFolders_List.Add(folder);
+                    else
+                        unmarkedFolders_List.Add(folder);
+                }
+
+                List<string> originalFiles_List = new List<string>();
+                List<string> customFiles_List = new List<string>();
+                List<string> unmarkedFiles_List = new List<string>();
+                for (int n = 0; n < files.Length; n += 1)
+                {
+                    string file = files[n];
+                    string fileName = Path.GetFileName(file);
+                    if (fileName.IndexOf(Prefix_Original) == 0)
+                        originalFiles_List.Add(file);
+                    else if (fileName.IndexOf(Prefix_Custom) == 0)
+                        customFiles_List.Add(file);
+                    else
+                        unmarkedFiles_List.Add(file);
+                }
+
+                originalFolders = originalFolders_List.ToArray();
+                originalFiles = originalFiles_List.ToArray();
+                customFolders = customFolders_List.ToArray();
+                customFiles = customFiles_List.ToArray();
+                unmarkedFolders = unmarkedFolders_List.ToArray();
+                unmarkedFiles = unmarkedFiles_List.ToArray();
+            }
+            sort(exe_Folders, exe_Files,
+                out exe_OriginalFolders, out exe_OriginalFiles,
+                out exe_CustomFolders, out exe_CustomFiles,
+                out exe_UnmarkedFolders, out exe_UnmarkedFiles);
+            sort(sav_Folders, sav_Files,
+                out sav_OriginalFolders, out sav_OriginalFiles,
+                out sav_CustomFolders, out sav_CustomFiles,
+                out sav_UnmarkedFolders, out sav_UnmarkedFiles);
+
+            void write(string path,
+                string[] originalFolders, string[] originalFiles,
+                string[] customFolders, string[] customFiles,
+                string[] unmarkedFolders, string[] unmarkedFiles)
+            {
+                using (StreamWriter strWriter = new StreamWriter(path))
+                {
+                    strWriter.WriteLine("Original");
+                    foreach (string line in originalFolders)
+                        strWriter.WriteLine(line);
+                    foreach (string line in originalFiles)
+                        strWriter.WriteLine(line);
+                    strWriter.WriteLine();
+
+                    strWriter.WriteLine("Custom");
+                    foreach (string line in customFolders)
+                        strWriter.WriteLine(line);
+                    foreach (string line in customFiles)
+                        strWriter.WriteLine(line);
+                    strWriter.WriteLine();
+
+                    strWriter.WriteLine("Unmarked");
+                    foreach (string line in unmarkedFolders)
+                        strWriter.WriteLine(line);
+                    foreach (string line in unmarkedFiles)
+                        strWriter.WriteLine(line);
+                    strWriter.WriteLine();
+                }
+            }
+            write("Executable.txt",
+                exe_OriginalFolders, exe_OriginalFiles,
+                exe_CustomFolders, exe_CustomFiles,
+                exe_UnmarkedFolders, exe_UnmarkedFiles);
+            write("Save.txt",
+                sav_OriginalFolders, sav_OriginalFiles,
+                sav_CustomFolders, sav_CustomFiles,
+                sav_UnmarkedFolders, sav_UnmarkedFiles);
+
+            bool exe_HasOriginalFilesAndFolders = (
+                (exe_OriginalFolders.Length > 0) |
+                (exe_OriginalFiles.Length > 0));
+            bool exe_HasCustomFilesAndFolders = (
+                (exe_CustomFolders.Length > 0) |
+                (exe_CustomFiles.Length > 0));
+            bool sav_HasOriginalFilesAndFolders = (
+                (sav_OriginalFolders.Length > 0) |
+                (sav_OriginalFiles.Length > 0));
+            bool sav_HasCustomFilesAndFolders = (
+                (sav_CustomFolders.Length > 0) |
+                (sav_CustomFiles.Length > 0));
+            bool hasOriginalFilesAndFolders = (exe_HasOriginalFilesAndFolders | sav_HasOriginalFilesAndFolders);
+            bool hasCustomFilesAndFolders = (exe_HasCustomFilesAndFolders | sav_HasCustomFilesAndFolders);
+            if (hasOriginalFilesAndFolders & (!hasCustomFilesAndFolders))
+                return LookThruExecutableAndSaveDirectoryReturn.FoundOriginalFilesAndFolders;
+            if ((!hasOriginalFilesAndFolders) & hasCustomFilesAndFolders)
+                return LookThruExecutableAndSaveDirectoryReturn.FoundCustomFilesAndFolders;
+            if (hasOriginalFilesAndFolders & hasCustomFilesAndFolders)
+            {
+                MessageBox.Show(
+                    "There are both files/folders marked as original and files/folders marked as custom",
+                    "Found Both Original and Custom Files/Folders",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return LookThruExecutableAndSaveDirectoryReturn.FoundOriginalAndCustomFilesAndFolders;
+            }
+            return LookThruExecutableAndSaveDirectoryReturn.FoundNeitherOriginalNorCustomFilesAndFolders;
+        }
+
+        private void Set_Config(string executableDirectory, string optionsDirectory, string saveDirectory, bool dontShowBeginningWarning)
         {
             Config_ExecutableDirectory = executableDirectory;
             Config_ExecutableDirectory_Executable = Fun.DirectoryAndFile(
@@ -574,14 +782,11 @@ namespace RCT3Pal
 
             Config_SaveDirectory = saveDirectory;
 
+            Config_DontShowBeginningWarning = dontShowBeginningWarning;
 
-            bool pathIsValid_ExecutableDirectory = PathIsValid_ExecutableDirectory();
-            bool pathIsValid_OptionsDirectory = PathIsValid_OptionsDirectory();
-            bool pathIsValid_SaveDirectory = PathIsValid_SaveDirectory();
-
-            Button_RCT3.Enabled = pathIsValid_ExecutableDirectory;
+            Button_RCT3.Enabled = PathIsValid_ExecutableDirectory(false);
             
-            if (pathIsValid_OptionsDirectory)
+            if (PathIsValid_OptionsDirectory(false))
             {
                 GroupBox_Options.Enabled = true;
                 Options_Load();
@@ -591,33 +796,32 @@ namespace RCT3Pal
                 GroupBox_Options.Enabled = false;
             }
             
-            if (pathIsValid_ExecutableDirectory & pathIsValid_SaveDirectory)
+            if (PathsAreValid_ExecutableDirectoryAndSaveDirectory(true, false))
             {
                 GroupBox_CustomAssets.Enabled = true;
-                string[] exe_OriginalFolders = Directory.GetDirectories(executableDirectory, Prefix_Original + "*");
-                string[] exe_OriginalFiles = Directory.GetFiles(executableDirectory, Prefix_Original + "*");
-                string[] exe_CustomFolders = Directory.GetDirectories(executableDirectory, Prefix_Custom + "*");
-                string[] exe_CustomFiles = Directory.GetFiles(executableDirectory, Prefix_Custom + "*");
-                bool hasOriginalFilesAndFolders = (
-                    exe_OriginalFiles.Length + 
-                    exe_OriginalFolders.Length) > 0;
-                bool hasCustomFilesAndFolders = (
-                    exe_CustomFiles.Length + 
-                    exe_CustomFolders.Length) > 0;
-                if ((hasOriginalFilesAndFolders) & (hasCustomFilesAndFolders))
+                LookThruExecutableAndSaveDirectoryReturn lookThruExecutableAndSaveDirectoryReturn = 
+                    LookThruExecutableAndSaveDirectory(
+                        out string[] exe_OriginalFolders, out string[] exe_OriginalFiles,
+                        out string[] exe_CustomFolders, out string[] exe_CustomFiles,
+                        out string[] exe_UnmarkedFolders, out string[] exe_UnmarkedFiles,
+                        out string[] sav_OriginalFolders, out string[] sav_OriginalFiles,
+                        out string[] sav_CustomFolders, out string[] sav_CustomFiles,
+                        out string[] sav_UnmarkedFolders, out string[] sav_UnmarkedFiles);
+
+                if ((lookThruExecutableAndSaveDirectoryReturn ==
+                        LookThruExecutableAndSaveDirectoryReturn.CouldNotSearch) |
+                    (lookThruExecutableAndSaveDirectoryReturn ==
+                        LookThruExecutableAndSaveDirectoryReturn.FoundOriginalAndCustomFilesAndFolders))
                 {
-                    MessageBox.Show(
-                        "There are both files/folders marked as original and files/folders marked as custom",
-                        "Found Both Original and Custom Files/Folders",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
                     GroupBox_CustomAssets.Enabled = false;
                 }
-                else if (hasOriginalFilesAndFolders)
+                else if (lookThruExecutableAndSaveDirectoryReturn ==
+                    LookThruExecutableAndSaveDirectoryReturn.FoundOriginalFilesAndFolders)
                 {
                     Set_UseCustomAssets(true);
                 }
-                else if (hasCustomFilesAndFolders)
+                else if (lookThruExecutableAndSaveDirectoryReturn ==
+                    LookThruExecutableAndSaveDirectoryReturn.FoundCustomFilesAndFolders)
                 {
                     Set_UseCustomAssets(false);
                 }
@@ -631,7 +835,6 @@ namespace RCT3Pal
                 GroupBox_CustomAssets.Enabled = false;
             }
             
-            
         }
 
         private void OpenConfig()
@@ -639,23 +842,25 @@ namespace RCT3Pal
             Form_Config config = new Form_Config(
                 Config_ExecutableDirectory, 
                 Config_OptionsDirectory,
-                Config_SaveDirectory);
+                Config_SaveDirectory,
+                Config_DontShowBeginningWarning);
             if (config.ShowDialog() == DialogResult.Cancel)
                 return;
-            Set_ConfigDirectories(config.ExecutableDirectory, config.OptionsDirectory, config.SaveDirectory);
+            Set_Config(config.ExecutableDirectory, config.OptionsDirectory, config.SaveDirectory, config.DontShowBeginningWarning);
             ConfigFile.Save(ConfigFilePath,
                 Config_ExecutableDirectory,
                 Config_OptionsDirectory,
-                Config_SaveDirectory);
+                Config_SaveDirectory,
+                Config_DontShowBeginningWarning);
         }
         #endregion
 
-        public Form_Main()
+        public Form_Main(string configFilePath, string programDirectory)
         {
             RCT3Process = null;
             RCT3Process_IsRunning = false;
 
-            ProgramDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            ProgramDirectory = programDirectory;
 
             InitializeComponent();
 
@@ -674,7 +879,7 @@ namespace RCT3Pal
             //Load configurations
             #region
             Set_UseCustomAssets(false);
-            ConfigFilePath = ProgramDirectory + "\\RCT3Pal_Config.xml";
+            ConfigFilePath = configFilePath;
             Config_ExecutableDirectory = "";
             Config_OptionsDirectory = "";
             if (!File.Exists(ConfigFilePath))
@@ -686,9 +891,10 @@ namespace RCT3Pal
                 if (ConfigFile.Open(ConfigFilePath,
                     out string executableDirectory,
                     out string optionsDirectory,
-                    out string saveDirectory))
+                    out string saveDirectory,
+                    out bool dontShowBeginningWarning))
                 {
-                    Set_ConfigDirectories(executableDirectory, optionsDirectory, saveDirectory);
+                    Set_Config(executableDirectory, optionsDirectory, saveDirectory, dontShowBeginningWarning);
                 }
 
             }
@@ -756,7 +962,7 @@ namespace RCT3Pal
                 return;
 
             bool mod_Options = true;
-            if (!PathIsValid_OptionsDirectory())
+            if (!PathIsValid_OptionsDirectory(false))
                 mod_Options = false;
 
             //Backup and modify Options file (if modding options)
@@ -920,8 +1126,366 @@ namespace RCT3Pal
             if (form.ShowDialog() == DialogResult.Cancel)
                 return;
 
+
+            string[] exe_directories = Directory.GetDirectories(Config_ExecutableDirectory);
+            string[] exe_files = Directory.GetFiles(Config_ExecutableDirectory);
+            bool tryToRenameFilesAndFolders(
+                string[] oldFolderNames, string[] newFolderNames,
+                string[] oldFileNames, string[] newFileNames)
+            {
+                if (oldFolderNames.Length != newFolderNames.Length)
+                    return false;
+                if (oldFileNames.Length != newFileNames.Length)
+                    return false;
+
+                List<(bool, string, string)> thingsToRename = 
+                    new List<(bool, string, string)>(); //(isAFile, oldName, newName)
+                for (int n = 0; n < oldFolderNames.Length; n += 1)
+                {
+                    thingsToRename.Add((
+                        false,
+                        oldFolderNames[n],
+                        newFolderNames[n]));
+                }
+                for (int n = 0; n < oldFileNames.Length; n += 1)
+                {
+                    thingsToRename.Add((
+                        true,
+                        oldFileNames[n],
+                        newFileNames[n]));
+                }
+
+                bool tryToRename(bool isAFile, string oldName, string newName)
+                {
+                    if (isAFile)
+                    {
+                        try
+                        {
+                            File.Move(oldName, newName);
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            Directory.Move(oldName, newName);
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+                int x = 0;
+                while (x < thingsToRename.Count)
+                {
+                    if (!tryToRename(
+                        thingsToRename[x].Item1,
+                        thingsToRename[x].Item2,
+                        thingsToRename[x].Item3))
+                    {
+                        x -= 1;
+                        while (x >= 0)
+                        {
+                            if (!tryToRename(
+                                thingsToRename[x].Item1,
+                                thingsToRename[x].Item3,
+                                thingsToRename[x].Item2))
+                            {
+                                MessageBox.Show(
+                                    "Could not successfully rename files and folders. Also failed to name fles and folders back.",
+                                    "Could Not Rename Files and Folders",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error);
+                                return false;
+                            }
+                            x -= 1;
+                        }
+                        MessageBox.Show(
+                            "Could not successfully rename files and folders. Files and folders were named back.",
+                            "Could Not Rename Files and Folders",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        return false;
+                    }
+                    x += 1;
+                }
+                return true;
+            }
+            Dictionary<string, (string, string)> sortByBaseFilename(string[] unmarkedFiles, string[] markedFiles, string prefixOfMarkedFiles)
+            {
+                //Key: Base Filename
+                //Value: Unmarked File, Marked File
+                Dictionary<string, (string, string)> dict = new Dictionary<string, (string, string)>();
+                for (int n = 0; n < unmarkedFiles.Length; n += 1)
+                {
+                    string unmarkedFile = unmarkedFiles[n];
+                    string basename = Path.GetFileName(unmarkedFile);
+                    dict.Add(basename, (unmarkedFile, ""));
+                }
+                for (int n = 0; n < markedFiles.Length; n += 1)
+                {
+                    string markedFile = markedFiles[n];
+                    string basename = Path.GetFileName(markedFile).Substring(prefixOfMarkedFiles.Length);
+                    if (dict.ContainsKey(basename))
+                    {
+                        dict[basename] = (dict[basename].Item1, markedFile);
+                    }
+                    else
+                    {
+                        dict.Add(basename, ("", markedFile));
+                    }
+                }
+                return dict;
+            }
+            Dictionary<string, (string, string)> sortByBaseFoldername(string[] unmarkedFolders, string[] markedFolders, string prefixOfMarkedFolders)
+            {
+                //Key: Base Foldername
+                //Value: Unmarked Folder, Marked Folder
+                Dictionary<string, (string, string)> dict = new Dictionary<string, (string, string)>();
+                for (int n = 0; n < unmarkedFolders.Length; n += 1)
+                {
+                    string unmarkedFolder = unmarkedFolders[n];
+                    string basename = Path.GetFileName(unmarkedFolder);
+                    dict.Add(basename, (unmarkedFolder, ""));
+                }
+                for (int n = 0; n < markedFolders.Length; n += 1)
+                {
+                    string markedFolder = markedFolders[n];
+                    string basename = Path.GetFileName(markedFolder).Substring(prefixOfMarkedFolders.Length);
+                    if (dict.ContainsKey(basename))
+                    {
+                        dict[basename] = (dict[basename].Item1, markedFolder);
+                    }
+                    else
+                    {
+                        dict.Add(basename, ("", markedFolder));
+                    }
+                }
+                return dict;
+            }
+            void makeArraysForRenamingFilesOrFolders(
+                Dictionary<string, (string, string)> filesOrFoldersByBase,
+                string[] rct3FilesOrFolders,
+                string prefixOfOldMarkedFilesOrFolders,
+                string prefixOfNewMarkedFilesOrFolders,
+                out string[] oldNames, out string[] newNames)
+            {
+                string addPrefixToFileOrFolderName(string path, string prefix)
+                {
+                    return Path.GetFullPath(Path.GetDirectoryName(path)) + "\\" + prefix + Path.GetFileName(path);
+                }
+                string removePrefixFromFileOrFolderName(string path, string prefix)
+                {
+                    return Path.GetFullPath(Path.GetDirectoryName(path)) + "\\" + (
+                        (Path.GetFileName(path).IndexOf(prefix) == 0) ?
+                            Path.GetFileName(path).Substring(prefix.Length) :
+                            Path.GetFileName(path));
+                }
+                List<string> oldNames_List = new List<string>();
+                List<string> newNames_List = new List<string>();
+                foreach (KeyValuePair<string, (string, string)> kvp in filesOrFoldersByBase)
+                {
+                    string baseName = kvp.Key;
+                    string unmarkedFile = kvp.Value.Item1;
+                    string markedFile = kvp.Value.Item2;
+                    if (unmarkedFile != "")
+                    {
+                        if (markedFile != "")
+                        {
+                            oldNames_List.Add(unmarkedFile);
+                            newNames_List.Add(addPrefixToFileOrFolderName(unmarkedFile, prefixOfNewMarkedFilesOrFolders));
+                            oldNames_List.Add(markedFile);
+                            newNames_List.Add(removePrefixFromFileOrFolderName(markedFile, prefixOfOldMarkedFilesOrFolders));
+                        }
+                        else if (Array.IndexOf(rct3FilesOrFolders, baseName) == -1)
+                        {
+                            oldNames_List.Add(unmarkedFile);
+                            newNames_List.Add(addPrefixToFileOrFolderName(unmarkedFile, prefixOfNewMarkedFilesOrFolders));
+                        }
+                    }
+                    else if (markedFile != "")
+                    {
+                        oldNames_List.Add(markedFile);
+                        newNames_List.Add(removePrefixFromFileOrFolderName(markedFile, prefixOfOldMarkedFilesOrFolders));
+                    }
+                }
+                oldNames = oldNames_List.ToArray();
+                newNames = newNames_List.ToArray();
+            }
+            
+            Set_UseCustomAssets(false);
+            if (!PathsAreValid_ExecutableDirectoryAndSaveDirectory(false, false))
+            {
+                GroupBox_CustomAssets.Enabled = false;
+                return;
+            }
+            LookThruExecutableAndSaveDirectoryReturn lookThruExecutableAndSaveDirectoryReturn =
+                LookThruExecutableAndSaveDirectory(
+                    out string[] exe_OriginalFolders, out string[] exe_OriginalFiles,
+                    out string[] exe_CustomFolders, out string[] exe_CustomFiles,
+                    out string[] exe_UnmarkedFolders, out string[] exe_UnmarkedFiles,
+                    out string[] sav_OriginalFolders, out string[] sav_OriginalFiles,
+                    out string[] sav_CustomFolders, out string[] sav_CustomFiles,
+                    out string[] sav_UnmarkedFolders, out string[] sav_UnmarkedFiles);
+            if ((lookThruExecutableAndSaveDirectoryReturn ==
+                    LookThruExecutableAndSaveDirectoryReturn.CouldNotSearch) |
+                (lookThruExecutableAndSaveDirectoryReturn ==
+                    LookThruExecutableAndSaveDirectoryReturn.FoundOriginalAndCustomFilesAndFolders))
+            {
+                GroupBox_CustomAssets.Enabled = false;
+                return;
+            }
+            if (lookThruExecutableAndSaveDirectoryReturn ==
+                LookThruExecutableAndSaveDirectoryReturn.FoundOriginalFilesAndFolders)
+            {
+                //Custom assets were being used
+                if (!form.UseCustomAssets)
+                {
+                    //User wants to use original assets
+                    Dictionary<string, (string, string)> exe_FilesByBase = sortByBaseFilename(
+                        exe_UnmarkedFiles,
+                        exe_OriginalFiles,
+                        Prefix_Original);
+                    Dictionary<string, (string, string)> exe_FoldersByBase = sortByBaseFoldername(
+                        exe_UnmarkedFolders,
+                        exe_OriginalFolders,
+                        Prefix_Original);
+                    Dictionary<string, (string, string)> sav_FilesByBase = sortByBaseFilename(
+                        sav_UnmarkedFiles,
+                        sav_OriginalFiles,
+                        Prefix_Original);
+                    Dictionary<string, (string, string)> sav_FoldersByBase = sortByBaseFoldername(
+                        sav_UnmarkedFolders,
+                        sav_OriginalFolders,
+                        Prefix_Original);
+
+                    makeArraysForRenamingFilesOrFolders(
+                        exe_FilesByBase,
+                        Exe_RCT3Files,
+                        Prefix_Original,
+                        Prefix_Custom,
+                        out string[] exe_OldFiles, out string[] exe_NewFiles);
+                    makeArraysForRenamingFilesOrFolders(
+                        exe_FoldersByBase,
+                        Exe_RCT3Folders,
+                        Prefix_Original,
+                        Prefix_Custom,
+                        out string[] exe_OldFolders, out string[] exe_NewFolders);
+                    makeArraysForRenamingFilesOrFolders(
+                        sav_FilesByBase,
+                        Sav_RCT3Files,
+                        Prefix_Original,
+                        Prefix_Custom,
+                        out string[] sav_OldFiles, out string[] sav_NewFiles);
+                    makeArraysForRenamingFilesOrFolders(
+                        sav_FoldersByBase,
+                        Sav_RCT3Folders,
+                        Prefix_Original,
+                        Prefix_Custom,
+                        out string[] sav_OldFolders, out string[] sav_NewFolders);
+
+                    List<string> oldFiles = exe_OldFiles.ToList();
+                    oldFiles.AddRange(sav_OldFiles);
+                    List<string> newFiles = exe_NewFiles.ToList();
+                    newFiles.AddRange(sav_NewFiles);
+                    List<string> oldFolders = exe_OldFolders.ToList();
+                    oldFolders.AddRange(sav_OldFolders);
+                    List<string> newFolders = exe_NewFolders.ToList();
+                    newFolders.AddRange(sav_NewFolders);
+
+                    if (!tryToRenameFilesAndFolders(
+                        oldFolders.ToArray(),
+                        newFolders.ToArray(),
+                        oldFiles.ToArray(),
+                        newFiles.ToArray()))
+                    {
+                        GroupBox_CustomAssets.Enabled = false;
+                        return;
+                    }
+                }
+            }
+            if (lookThruExecutableAndSaveDirectoryReturn ==
+                LookThruExecutableAndSaveDirectoryReturn.FoundCustomFilesAndFolders)
+            {
+                //Original assets were being used
+                if (form.UseCustomAssets)
+                {
+                    //User wants to use custom assets
+                    Dictionary<string, (string, string)> exe_FilesByBase = sortByBaseFilename(
+                        exe_UnmarkedFiles,
+                        exe_CustomFiles,
+                        Prefix_Custom);
+                    Dictionary<string, (string, string)> exe_FoldersByBase = sortByBaseFoldername(
+                        exe_UnmarkedFolders,
+                        exe_CustomFolders,
+                        Prefix_Custom);
+                    Dictionary<string, (string, string)> sav_FilesByBase = sortByBaseFilename(
+                        sav_UnmarkedFiles,
+                        sav_CustomFiles,
+                        Prefix_Custom);
+                    Dictionary<string, (string, string)> sav_FoldersByBase = sortByBaseFoldername(
+                        sav_UnmarkedFolders,
+                        sav_CustomFolders,
+                        Prefix_Custom);
+
+                    makeArraysForRenamingFilesOrFolders(
+                        exe_FilesByBase,
+                        Exe_RCT3Files,
+                        Prefix_Custom,
+                        Prefix_Original,
+                        out string[] exe_OldFiles, out string[] exe_NewFiles);
+                    makeArraysForRenamingFilesOrFolders(
+                        exe_FoldersByBase,
+                        Exe_RCT3Folders,
+                        Prefix_Custom,
+                        Prefix_Original,
+                        out string[] exe_OldFolders, out string[] exe_NewFolders);
+                    makeArraysForRenamingFilesOrFolders(
+                        sav_FilesByBase,
+                        Sav_RCT3Files,
+                        Prefix_Custom,
+                        Prefix_Original,
+                        out string[] sav_OldFiles, out string[] sav_NewFiles);
+                    makeArraysForRenamingFilesOrFolders(
+                        sav_FoldersByBase,
+                        Sav_RCT3Folders,
+                        Prefix_Custom,
+                        Prefix_Original,
+                        out string[] sav_OldFolders, out string[] sav_NewFolders);
+
+                    List<string> oldFiles = exe_OldFiles.ToList();
+                    oldFiles.AddRange(sav_OldFiles);
+                    List<string> newFiles = exe_NewFiles.ToList();
+                    newFiles.AddRange(sav_NewFiles);
+                    List<string> oldFolders = exe_OldFolders.ToList();
+                    oldFolders.AddRange(sav_OldFolders);
+                    List<string> newFolders = exe_NewFolders.ToList();
+                    newFolders.AddRange(sav_NewFolders);
+
+                    if (!tryToRenameFilesAndFolders(
+                        oldFolders.ToArray(),
+                        newFolders.ToArray(),
+                        oldFiles.ToArray(),
+                        newFiles.ToArray()))
+                    {
+                        GroupBox_CustomAssets.Enabled = false;
+                        return;
+                    }
+                }
+            }
+            if (lookThruExecutableAndSaveDirectoryReturn ==
+                LookThruExecutableAndSaveDirectoryReturn.FoundNeitherOriginalNorCustomFilesAndFolders)
+            {
+                return;
+            }
             Set_UseCustomAssets(form.UseCustomAssets);
-            //Add code here
         }
     }
 }

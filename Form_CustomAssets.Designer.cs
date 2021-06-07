@@ -30,21 +30,9 @@ namespace RCT3Pal
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_CustomAssets));
-            this.Button_CreateCustom = new System.Windows.Forms.Button();
             this.CheckBox_UseCustomAssets = new System.Windows.Forms.CheckBox();
             this.Button_OK = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // Button_CreateCustom
-            // 
-            this.Button_CreateCustom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.Button_CreateCustom.Location = new System.Drawing.Point(211, 12);
-            this.Button_CreateCustom.Name = "Button_CreateCustom";
-            this.Button_CreateCustom.Size = new System.Drawing.Size(125, 23);
-            this.Button_CreateCustom.TabIndex = 2;
-            this.Button_CreateCustom.Text = "Create Custom Folders";
-            this.Button_CreateCustom.UseVisualStyleBackColor = true;
-            this.Button_CreateCustom.Click += new System.EventHandler(this.Button_CreateCustom_Click);
             // 
             // CheckBox_UseCustomAssets
             // 
@@ -76,7 +64,6 @@ namespace RCT3Pal
             this.ClientSize = new System.Drawing.Size(348, 115);
             this.Controls.Add(this.Button_OK);
             this.Controls.Add(this.CheckBox_UseCustomAssets);
-            this.Controls.Add(this.Button_CreateCustom);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -90,8 +77,6 @@ namespace RCT3Pal
         }
 
         #endregion
-
-        private System.Windows.Forms.Button Button_CreateCustom;
         private System.Windows.Forms.CheckBox CheckBox_UseCustomAssets;
         private System.Windows.Forms.Button Button_OK;
     }

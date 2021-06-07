@@ -13,11 +13,13 @@ namespace RCT3Pal
         private const string NodeName_ExecutableDirectory = "ExecutableDirectory";
         private const string NodeName_OptionsDirectory = "OptionsDirectory";
         private const string NodeName_SaveDirectory = "SaveDirectory";
+        private const string NodeName_DontShowBeginningWarning = "DontShowBeginningWarning";
 
         public static bool Save(string path,
             string executableDirectory,
             string optionsDirectory,
-            string saveDirectory)
+            string saveDirectory,
+            bool dontShowBeginningWarning)
         {
             XmlDocument xmlDoc = new XmlDocument();
             XmlElement mainNode = xmlDoc.CreateElement(MainNodeName);
@@ -41,6 +43,13 @@ namespace RCT3Pal
                 saveDirectory;
             mainNode.AppendChild(node_SaveDirectory);
 
+            if (dontShowBeginningWarning)
+            {
+                XmlElement node_DontShowBeginningWarning = xmlDoc.CreateElement(
+                    NodeName_DontShowBeginningWarning);
+                mainNode.AppendChild(node_DontShowBeginningWarning);
+            }
+
             try
             {
                 xmlDoc.Save(path);
@@ -61,11 +70,13 @@ namespace RCT3Pal
         public static bool Open(string path,
             out string executableDirectory,
             out string optionsDirectory,
-            out string saveDirectory)
+            out string saveDirectory,
+            out bool dontShowBeginningWarning)
         {
             executableDirectory = "";
             optionsDirectory = "";
             saveDirectory = "";
+            dontShowBeginningWarning = false;
 
             XmlDocument xmlDoc = new XmlDocument();
             try
@@ -102,6 +113,10 @@ namespace RCT3Pal
             if (node_SaveDirectory != null)
                 saveDirectory =
                     node_SaveDirectory.InnerText;
+
+            XmlNode node_DontShowBeginningWarning = mainNode.SelectSingleNode(
+                NodeName_DontShowBeginningWarning);
+            dontShowBeginningWarning = (node_DontShowBeginningWarning != null);
 
             return true;
         }

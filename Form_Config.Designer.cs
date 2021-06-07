@@ -40,6 +40,7 @@ namespace RCT3Pal
             this.Button_Save = new System.Windows.Forms.Button();
             this.Label_Save = new System.Windows.Forms.Label();
             this.TextBox_Save = new System.Windows.Forms.TextBox();
+            this.CheckBox_DontShowBeginningWarning = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // TextBox_Executable
@@ -99,7 +100,7 @@ namespace RCT3Pal
             // Button_OK
             // 
             this.Button_OK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Button_OK.Location = new System.Drawing.Point(12, 130);
+            this.Button_OK.Location = new System.Drawing.Point(12, 147);
             this.Button_OK.Name = "Button_OK";
             this.Button_OK.Size = new System.Drawing.Size(75, 23);
             this.Button_OK.TabIndex = 6;
@@ -134,11 +135,24 @@ namespace RCT3Pal
             this.TextBox_Save.TabIndex = 7;
             this.TextBox_Save.TextChanged += new System.EventHandler(this.TextBox_Save_TextChanged);
             // 
+            // CheckBox_DontShowBeginningWarning
+            // 
+            this.CheckBox_DontShowBeginningWarning.AutoCheck = false;
+            this.CheckBox_DontShowBeginningWarning.AutoSize = true;
+            this.CheckBox_DontShowBeginningWarning.Location = new System.Drawing.Point(12, 90);
+            this.CheckBox_DontShowBeginningWarning.Name = "CheckBox_DontShowBeginningWarning";
+            this.CheckBox_DontShowBeginningWarning.Size = new System.Drawing.Size(222, 17);
+            this.CheckBox_DontShowBeginningWarning.TabIndex = 10;
+            this.CheckBox_DontShowBeginningWarning.Text = "Don\'t Show Warning Message on Startup";
+            this.CheckBox_DontShowBeginningWarning.UseVisualStyleBackColor = true;
+            this.CheckBox_DontShowBeginningWarning.Click += new System.EventHandler(this.CheckBox_DontShowBeginningWarning_Click);
+            // 
             // Form_Config
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(383, 165);
+            this.ClientSize = new System.Drawing.Size(383, 182);
+            this.Controls.Add(this.CheckBox_DontShowBeginningWarning);
             this.Controls.Add(this.Button_Save);
             this.Controls.Add(this.Label_Save);
             this.Controls.Add(this.TextBox_Save);
@@ -173,5 +187,6 @@ namespace RCT3Pal
         private System.Windows.Forms.Button Button_Save;
         private System.Windows.Forms.Label Label_Save;
         private System.Windows.Forms.TextBox TextBox_Save;
+        private System.Windows.Forms.CheckBox CheckBox_DontShowBeginningWarning;
     }
 }

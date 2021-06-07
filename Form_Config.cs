@@ -18,17 +18,21 @@ namespace RCT3Pal
         private string Var_OptionsDirectory;
         public string SaveDirectory { get { return Var_SaveDirectory; } }
         private string Var_SaveDirectory;
+        public bool DontShowBeginningWarning {  get { return Var_DontShowBeginningWarning; } }
+        private bool Var_DontShowBeginningWarning;
 
-        public Form_Config(string executableDirectory, string optionsDirectory, string saveDirectory)
+        public Form_Config(string executableDirectory, string optionsDirectory, string saveDirectory, bool dontShowBeginningWarning)
         {
             InitializeComponent();
 
             Var_ExecutableDirectory = executableDirectory;
             Var_OptionsDirectory = optionsDirectory;
             Var_SaveDirectory = saveDirectory;
+            Var_DontShowBeginningWarning = dontShowBeginningWarning;
             TextBox_Executable.Text = Var_ExecutableDirectory;
             TextBox_Options.Text = Var_OptionsDirectory;
             TextBox_Save.Text = Var_SaveDirectory;
+            CheckBox_DontShowBeginningWarning.Checked = Var_DontShowBeginningWarning;
         }
 
         private void TextBox_Executable_TextChanged(object sender, EventArgs e)
@@ -94,6 +98,20 @@ namespace RCT3Pal
             }
 
             e.Cancel = true;
+        }
+
+        private void CheckBox_DontShowBeginningWarning_Click(object sender, EventArgs e)
+        {
+            if (CheckBox_DontShowBeginningWarning.Checked)
+            {
+                Var_DontShowBeginningWarning = false;
+                CheckBox_DontShowBeginningWarning.Checked = false;
+            }
+            else
+            {
+                Var_DontShowBeginningWarning = true;
+                CheckBox_DontShowBeginningWarning.Checked = true;
+            }
         }
     }
 }

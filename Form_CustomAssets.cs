@@ -73,22 +73,5 @@ namespace RCT3Pal
             Prefix_Custom = prefix_Custom;
             Prefix_Original = prefix_Original;
         }
-
-        private void Button_CreateCustom_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(
-                "This will delete any existing Custom Folders in Executable Directory and Save Directory. Is this OK?",
-                "Is This OK",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning) == DialogResult.No)
-                return;
-
-            if (Form_CreateCustomFolders.Perform(
-                Config_ExecutableDirectory,
-                Config_SaveDirectory,
-                Prefix_Custom,
-                Prefix_Original) == DialogResult.Cancel)
-                return;
-        }
     }
 }

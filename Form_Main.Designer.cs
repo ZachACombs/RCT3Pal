@@ -46,12 +46,12 @@ namespace RCT3Pal
             this.Panel_Options_Main = new System.Windows.Forms.FlowLayoutPanel();
             this.Panel_Options_Right = new System.Windows.Forms.Panel();
             this.GroupBox_CustomAssets = new System.Windows.Forms.GroupBox();
+            this.Button_CustomAssets = new System.Windows.Forms.Button();
+            this.Label_CustomAssets = new System.Windows.Forms.Label();
+            this.Label_UseCustomAssets = new System.Windows.Forms.Label();
             this.Panel_RCT3 = new System.Windows.Forms.Panel();
             this.Panel_CustomContent = new System.Windows.Forms.Panel();
             this.Panel_Options = new System.Windows.Forms.Panel();
-            this.Label_UseCustomAssets = new System.Windows.Forms.Label();
-            this.Label_CustomAssets = new System.Windows.Forms.Label();
-            this.Button_CustomAssets = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.GroupBox_Options.SuspendLayout();
@@ -198,7 +198,36 @@ namespace RCT3Pal
             this.GroupBox_CustomAssets.Size = new System.Drawing.Size(600, 94);
             this.GroupBox_CustomAssets.TabIndex = 8;
             this.GroupBox_CustomAssets.TabStop = false;
-            this.GroupBox_CustomAssets.Text = "Custom Assets (Coming Soon)";
+            this.GroupBox_CustomAssets.Text = "Custom Assets";
+            // 
+            // Button_CustomAssets
+            // 
+            this.Button_CustomAssets.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.Button_CustomAssets.Location = new System.Drawing.Point(6, 65);
+            this.Button_CustomAssets.Name = "Button_CustomAssets";
+            this.Button_CustomAssets.Size = new System.Drawing.Size(75, 23);
+            this.Button_CustomAssets.TabIndex = 4;
+            this.Button_CustomAssets.Text = "Edit";
+            this.Button_CustomAssets.UseVisualStyleBackColor = true;
+            this.Button_CustomAssets.Click += new System.EventHandler(this.Button_CustomAssets_Click);
+            // 
+            // Label_CustomAssets
+            // 
+            this.Label_CustomAssets.AutoSize = true;
+            this.Label_CustomAssets.Location = new System.Drawing.Point(6, 23);
+            this.Label_CustomAssets.Name = "Label_CustomAssets";
+            this.Label_CustomAssets.Size = new System.Drawing.Size(85, 13);
+            this.Label_CustomAssets.TabIndex = 3;
+            this.Label_CustomAssets.Text = "Current Settings:";
+            // 
+            // Label_UseCustomAssets
+            // 
+            this.Label_UseCustomAssets.AutoSize = true;
+            this.Label_UseCustomAssets.Location = new System.Drawing.Point(6, 36);
+            this.Label_UseCustomAssets.Name = "Label_UseCustomAssets";
+            this.Label_UseCustomAssets.Size = new System.Drawing.Size(35, 13);
+            this.Label_UseCustomAssets.TabIndex = 2;
+            this.Label_UseCustomAssets.Text = "label1";
             // 
             // Panel_RCT3
             // 
@@ -228,35 +257,6 @@ namespace RCT3Pal
             this.Panel_Options.Padding = new System.Windows.Forms.Padding(12, 3, 12, 3);
             this.Panel_Options.Size = new System.Drawing.Size(624, 258);
             this.Panel_Options.TabIndex = 11;
-            // 
-            // Label_UseCustomAssets
-            // 
-            this.Label_UseCustomAssets.AutoSize = true;
-            this.Label_UseCustomAssets.Location = new System.Drawing.Point(6, 36);
-            this.Label_UseCustomAssets.Name = "Label_UseCustomAssets";
-            this.Label_UseCustomAssets.Size = new System.Drawing.Size(35, 13);
-            this.Label_UseCustomAssets.TabIndex = 2;
-            this.Label_UseCustomAssets.Text = "label1";
-            // 
-            // Label_CustomAssets
-            // 
-            this.Label_CustomAssets.AutoSize = true;
-            this.Label_CustomAssets.Location = new System.Drawing.Point(6, 23);
-            this.Label_CustomAssets.Name = "Label_CustomAssets";
-            this.Label_CustomAssets.Size = new System.Drawing.Size(85, 13);
-            this.Label_CustomAssets.TabIndex = 3;
-            this.Label_CustomAssets.Text = "Current Settings:";
-            // 
-            // Button_CustomAssets
-            // 
-            this.Button_CustomAssets.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.Button_CustomAssets.Location = new System.Drawing.Point(6, 65);
-            this.Button_CustomAssets.Name = "Button_CustomAssets";
-            this.Button_CustomAssets.Size = new System.Drawing.Size(75, 23);
-            this.Button_CustomAssets.TabIndex = 4;
-            this.Button_CustomAssets.Text = "Edit";
-            this.Button_CustomAssets.UseVisualStyleBackColor = true;
-            this.Button_CustomAssets.Click += new System.EventHandler(this.Button_CustomAssets_Click);
             // 
             // Form_Main
             // 
