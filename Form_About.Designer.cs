@@ -40,9 +40,9 @@ namespace RCT3Pal
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(122, 13);
+            this.label1.Size = new System.Drawing.Size(122, 26);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Created By Zach Combs";
+            this.label1.Text = "RCT3 Pal v0.1-Alpha\r\nCreated By Zach Combs";
             // 
             // pictureBox1
             // 
