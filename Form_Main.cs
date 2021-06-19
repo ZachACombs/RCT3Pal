@@ -729,14 +729,14 @@ namespace RCT3Pal
                     strWriter.WriteLine();
                 }
             }
-            write("Executable.txt",
+            /*write("Executable.txt",
                 exe_OriginalFolders, exe_OriginalFiles,
                 exe_CustomFolders, exe_CustomFiles,
                 exe_UnmarkedFolders, exe_UnmarkedFiles);
             write("Save.txt",
                 sav_OriginalFolders, sav_OriginalFiles,
                 sav_CustomFolders, sav_CustomFiles,
-                sav_UnmarkedFolders, sav_UnmarkedFiles);
+                sav_UnmarkedFolders, sav_UnmarkedFiles);*/
 
             bool exe_HasOriginalFilesAndFolders = (
                 (exe_OriginalFolders.Length > 0) |
@@ -845,8 +845,9 @@ namespace RCT3Pal
                 Config_SaveDirectory,
                 Config_DontShowBeginningWarning);
             if (config.ShowDialog() == DialogResult.Cancel)
-                return;
-            Set_Config(config.ExecutableDirectory, config.OptionsDirectory, config.SaveDirectory, config.DontShowBeginningWarning);
+                Set_Config(Config_ExecutableDirectory, Config_OptionsDirectory, Config_SaveDirectory, Config_DontShowBeginningWarning);
+            else
+                Set_Config(config.ExecutableDirectory, config.OptionsDirectory, config.SaveDirectory, config.DontShowBeginningWarning);
             ConfigFile.Save(ConfigFilePath,
                 Config_ExecutableDirectory,
                 Config_OptionsDirectory,
