@@ -42,7 +42,7 @@ namespace RCT3Pal
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(122, 26);
             this.label1.TabIndex = 0;
-            this.label1.Text = "RCT3 Pal v0.1-Alpha\r\nCreated By Zach Combs";
+            this.label1.Text = "RCT3Pal v0.1-Alpha\r\nCreated By Zach Combs";
             // 
             // pictureBox1
             // 
@@ -66,7 +66,7 @@ namespace RCT3Pal
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Form_About";
-            this.Text = "About RCT3 Pal";
+            this.Text = "About RCT3Pal";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
