@@ -40,6 +40,8 @@ namespace RCT3Pal
             }
         }
 
+        public bool DefaultValue { get { return Var_OptionControl.DefaultValue; } }
+
         public OptionValue_Bool(string optionName, bool isTrue)
         {
             Var_OptionControl = new OptionControl_Bool(optionName, isTrue);
@@ -72,6 +74,8 @@ namespace RCT3Pal
                 Var_OptionControl.SelectedIndex = value;
             }
         }
+
+        public int DefaultIndex { get { return Var_OptionControl.DefaultIndex; } }
 
         public OptionValue_Choice(string optionName, int defaultIndex, string[] choices)
         {
@@ -119,6 +123,8 @@ namespace RCT3Pal
                 Var_OptionControl.Set_Value(value);
             }
         }
+
+        public int DefaultValue { get { return Var_OptionControl.DefaultValue; } }
 
         public OptionValue_Int(string optionName, int defaultValue, int min, int max)
         {
@@ -243,6 +249,28 @@ namespace RCT3Pal
             }
 
             UnknownOptions.Clear();
+
+            string[] knownOptions_keys = KnownOptions.Keys.ToArray();
+            for (int n = 0; n < knownOptions_keys.Length; n += 1)
+            {
+                object obj = KnownOptions[knownOptions_keys[n]];
+                Type objType = obj.GetType();
+                if (objType == typeof(OptionValue_Bool))
+                {
+                    OptionValue_Bool objBool = (OptionValue_Bool)obj;
+                    objBool.IsTrue = objBool.DefaultValue;
+                }
+                if (objType == typeof(OptionValue_Choice))
+                {
+                    OptionValue_Choice objChoice = (OptionValue_Choice)obj;
+                    objChoice.SelectedIndex = objChoice.DefaultIndex;
+                }
+                if (objType == typeof(OptionValue_Int))
+                {
+                    OptionValue_Int objInt = (OptionValue_Int)obj;
+                    objInt.Value = objInt.DefaultValue;
+                }
+            }
 
             for (int ll = 0; ll < lines.Length; ll += 1)
             {
@@ -945,18 +973,18 @@ namespace RCT3Pal
             }
             
             bool mod_Options = true;
+            DateTime timeOptionsModified = new DateTime();
             if (!PathIsValid_OptionsDirectory(false))
                 mod_Options = false;
 
             //Backup and modify Options file (if modding options)
-            string temp_OptionsFile;
             #region
-            temp_OptionsFile = "";
             if (mod_Options)
             {
-                temp_OptionsFile = NotSoRandomFileName(ProgramDirectory + "\\Options", ".txt");
-                File.Move(Config_OptionsDirectory_Options, temp_OptionsFile);
+                Console.WriteLine(File.GetLastWriteTime(Config_OptionsDirectory_Options).Ticks);
                 Options_Save();
+                timeOptionsModified = File.GetLastWriteTime(Config_OptionsDirectory_Options);
+                Console.WriteLine(timeOptionsModified.Ticks);
             }
             #endregion
 
@@ -1005,8 +1033,14 @@ namespace RCT3Pal
             #region
             if (mod_Options)
             {
-                File.Delete(Config_OptionsDirectory_Options);
-                File.Move(temp_OptionsFile, Config_OptionsDirectory_Options);
+                for (int n = 0; n < 10; n += 1)
+                {
+                    if (timeOptionsModified != File.GetLastWriteTime(Config_OptionsDirectory_Options))
+                        break;
+                    System.Threading.Thread.Sleep(1000);
+                }
+                Console.WriteLine(File.GetLastWriteTime(Config_OptionsDirectory_Options).Ticks);
+                Options_Load();
             }
             #endregion
         }
@@ -1056,6 +1090,16 @@ namespace RCT3Pal
                         return;
                     }
                 }
+            }
+
+            if (MessageBox.Show(
+                    "Any unsaved changes to the options will be lost. Is this OK?", 
+                    "Any Unsaved Changes",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning) == DialogResult.No)
+            {
+                e.Cancel = true;
+                return;
             }
         }
 

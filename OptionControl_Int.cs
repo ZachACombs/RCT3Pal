@@ -12,6 +12,8 @@ namespace RCT3Pal
 {
     public partial class OptionControl_Int : UserControl
     {
+        private int Var_DefaultValue; public int DefaultValue { get { return Var_DefaultValue; } }
+
         public int Min;
         public int Max;
         private int Var_Value;
@@ -42,6 +44,7 @@ namespace RCT3Pal
 
             Min = min;
             Max = max;
+            Var_DefaultValue = defaultValue;
             Set_Value(defaultValue);
             TextBox_Int.Text = Get_Value().ToString();
         }

@@ -12,6 +12,8 @@ namespace RCT3Pal
 {
     public partial class OptionControl_Bool : UserControl
     {
+        private bool Var_DefaultValue; public bool DefaultValue { get { return Var_DefaultValue; } }
+
         public bool IsTrue
         {
             get
@@ -29,6 +31,7 @@ namespace RCT3Pal
             InitializeComponent();
 
             CheckBox_Bool.Text = Fun.MakeOptionDisplayName(optionName);
+            Var_DefaultValue = isChecked;
             CheckBox_Bool.Checked = isChecked;
         }
 

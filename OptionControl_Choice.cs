@@ -12,6 +12,8 @@ namespace RCT3Pal
 {
     public partial class OptionControl_Choice : UserControl
     {
+        private int Var_DefaultIndex; public int DefaultIndex { get { return Var_DefaultIndex; } }
+
         public int SelectedIndex
         {
             get { return ComboBox_Choice.SelectedIndex; }
@@ -27,6 +29,7 @@ namespace RCT3Pal
             ComboBox_Choice.Items.Clear();
             foreach (string choice in choices)
                 ComboBox_Choice.Items.Add(choice);
+            Var_DefaultIndex = defaultIndex;
             ComboBox_Choice.SelectedIndex = defaultIndex;
         }
     }
